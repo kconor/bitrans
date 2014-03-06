@@ -27,4 +27,10 @@
   a machine.  I think scripts have headers but I haven't quite
   figured it out yet.
 
+* Structure
+  + ops.py: Opcode implementations.
+  + opfns.py: Implementations of the functions that opcodes are built from.
+  + machine.py: Stack machine implementation.
+  + bytestream.py: Bytestream implementation.
+
   
