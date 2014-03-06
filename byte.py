@@ -45,7 +45,7 @@ class byte:
         assert(len(hexstring) == 2)
         self.unsigned = uleb(hexstring)
         if self.unsigned > 127:
-            self.signed = -(256 - 127)
+            self.signed = -(256 - self.unsigned)
         else:
             self.signed = self.unsigned
 

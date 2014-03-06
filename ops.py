@@ -4,11 +4,14 @@ described in https://en.bitcoin.it/wiki/Script.
 
 """
 
+import opfns
+import bytestream
+
+# Ops
 class op:
-    def __init__(self, word, opcode, nargs = lambda bytelist: 0, f = lambda: None):
+    def __init__(self, word, opcode, f = lambda stream, machine: None):
         self.word = word
         self.opcode = opcode
-        self.nargs = nargs
         self.f = f
 
     def __call__(self, *args):
@@ -28,159 +31,105 @@ class op:
         else:
             return 1
 
-
 code = [None] * 256
-code[0] = op("OP_0", 0)
-code[1] = op("", 1, nargs=lambda bytelist: 1)
-code[2] = op("", 2, nargs=lambda bytelist: 2)
-code[3] = op("", 3, nargs=lambda bytelist: 3)
-code[4] = op("", 4, nargs=lambda bytelist: 4)
-code[5] = op("", 5, nargs=lambda bytelist: 5)
-code[6] = op("", 6, nargs=lambda bytelist: 6)
-code[7] = op("", 7, nargs=lambda bytelist: 7)
-code[8] = op("", 8, nargs=lambda bytelist: 8)
-code[9] = op("", 9, nargs=lambda bytelist: 9)
-code[10] = op("", 10, nargs=lambda bytelist: 10)
-code[11] = op("", 11, nargs=lambda bytelist: 11)
-code[12] = op("", 12, nargs=lambda bytelist: 12)
-code[13] = op("", 13, nargs=lambda bytelist: 13)
-code[14] = op("", 14, nargs=lambda bytelist: 14)
-code[15] = op("", 15, nargs=lambda bytelist: 15)
-code[16] = op("", 16, nargs=lambda bytelist: 16)
-code[17] = op("", 17, nargs=lambda bytelist: 17)
-code[18] = op("", 18, nargs=lambda bytelist: 18)
-code[19] = op("", 19, nargs=lambda bytelist: 19)
-code[20] = op("", 20, nargs=lambda bytelist: 20)
-code[21] = op("", 21, nargs=lambda bytelist: 21)
-code[22] = op("", 22, nargs=lambda bytelist: 22)
-code[23] = op("", 23, nargs=lambda bytelist: 23)
-code[24] = op("", 24, nargs=lambda bytelist: 24)
-code[25] = op("", 25, nargs=lambda bytelist: 25)
-code[26] = op("", 26, nargs=lambda bytelist: 26)
-code[27] = op("", 27, nargs=lambda bytelist: 27)
-code[28] = op("", 28, nargs=lambda bytelist: 28)
-code[29] = op("", 29, nargs=lambda bytelist: 29)
-code[30] = op("", 30, nargs=lambda bytelist: 30)
-code[31] = op("", 31, nargs=lambda bytelist: 31)
-code[32] = op("", 32, nargs=lambda bytelist: 32)
-code[33] = op("", 33, nargs=lambda bytelist: 33)
-code[34] = op("", 34, nargs=lambda bytelist: 34)
-code[35] = op("", 35, nargs=lambda bytelist: 35)
-code[36] = op("", 36, nargs=lambda bytelist: 36)
-code[37] = op("", 37, nargs=lambda bytelist: 37)
-code[38] = op("", 38, nargs=lambda bytelist: 38)
-code[39] = op("", 39, nargs=lambda bytelist: 39)
-code[40] = op("", 40, nargs=lambda bytelist: 40)
-code[41] = op("", 41, nargs=lambda bytelist: 41)
-code[42] = op("", 42, nargs=lambda bytelist: 42)
-code[43] = op("", 43, nargs=lambda bytelist: 43)
-code[44] = op("", 44, nargs=lambda bytelist: 44)
-code[45] = op("", 45, nargs=lambda bytelist: 45)
-code[46] = op("", 46, nargs=lambda bytelist: 46)
-code[47] = op("", 47, nargs=lambda bytelist: 47)
-code[48] = op("", 48, nargs=lambda bytelist: 48)
-code[49] = op("", 49, nargs=lambda bytelist: 49)
-code[50] = op("", 50, nargs=lambda bytelist: 50)
-code[51] = op("", 51, nargs=lambda bytelist: 51)
-code[52] = op("", 52, nargs=lambda bytelist: 52)
-code[53] = op("", 53, nargs=lambda bytelist: 53)
-code[54] = op("", 54, nargs=lambda bytelist: 54)
-code[55] = op("", 55, nargs=lambda bytelist: 55)
-code[56] = op("", 56, nargs=lambda bytelist: 56)
-code[57] = op("", 57, nargs=lambda bytelist: 57)
-code[58] = op("", 58, nargs=lambda bytelist: 58)
-code[59] = op("", 59, nargs=lambda bytelist: 59)
-code[60] = op("", 60, nargs=lambda bytelist: 60)
-code[61] = op("", 61, nargs=lambda bytelist: 61)
-code[62] = op("", 62, nargs=lambda bytelist: 62)
-code[63] = op("", 63, nargs=lambda bytelist: 63)
-code[64] = op("", 64, nargs=lambda bytelist: 64)
-code[65] = op("", 65, nargs=lambda bytelist: 65)
-code[66] = op("", 66, nargs=lambda bytelist: 66)
-code[67] = op("", 67, nargs=lambda bytelist: 67)
-code[68] = op("", 68, nargs=lambda bytelist: 68)
-code[69] = op("", 69, nargs=lambda bytelist: 69)
-code[70] = op("", 70, nargs=lambda bytelist: 70)
-code[71] = op("", 71, nargs=lambda bytelist: 71)
-code[72] = op("", 72, nargs=lambda bytelist: 72)
-code[73] = op("", 73, nargs=lambda bytelist: 73)
-code[74] = op("", 74, nargs=lambda bytelist: 74)
-code[75] = op("", 75, nargs=lambda bytelist: 75)
-code[76] = op("OP_PUSHDATA1", 76, nargs=lambda bytelist: 1)
-code[77] = op("OP_PUSHDATA2", 77, nargs=lambda bytelist: 2)
-code[78] = op("OP_PUSHDATA4", 77, nargs=lambda bytelist: 4)
-code[79] = op("OP_1NEGATE", 79, nargs=lambda bytelist: 0)
-code[82] = op("OP_2", 82, nargs=lambda bytelist: 0)
-code[83] = op("OP_3", 83, nargs=lambda bytelist: 0)
-code[84] = op("OP_4", 84, nargs=lambda bytelist: 0)
-code[85] = op("OP_5", 85, nargs=lambda bytelist: 0)
-code[86] = op("OP_6", 86, nargs=lambda bytelist: 0)
-code[87] = op("OP_7", 87, nargs=lambda bytelist: 0)
-code[88] = op("OP_8", 88, nargs=lambda bytelist: 0)
-code[89] = op("OP_9", 89, nargs=lambda bytelist: 0)
-code[90] = op("OP_10", 90, nargs=lambda bytelist: 0)
-code[91] = op("OP_11", 91, nargs=lambda bytelist: 0)
-code[92] = op("OP_12", 92, nargs=lambda bytelist: 0)
-code[93] = op("OP_13", 93, nargs=lambda bytelist: 0)
-code[94] = op("OP_14", 94, nargs=lambda bytelist: 0)
-code[95] = op("OP_15", 95, nargs=lambda bytelist: 0)
-code[96] = op("OP_16", 96, nargs=lambda bytelist: 0)
-code[97] = op("OP_NOP", 97, nargs=lambda bytelist: 0)
-code[99] = op("OP_IF", 99, nargs=lambda bytelist: 0) #wrong args
-code[100] = op("OP_NOTIF", 100, nargs=lambda bytelist: 0) #wrong args
-code[103] = op("OP_ELSE", 103, nargs=lambda bytelist: 0) #wrong args
-code[104] = op("OP_ENDIF", 104, nargs=lambda bytelist: 0)
-code[105] = op("OP_VERIFY", 105, nargs=lambda bytelist: 1)
-code[106] = op("OP_RETURN", 106, nargs=lambda bytelist: 0)
-code[107] = op("OP_TOALTSTACK", 107, nargs=lambda bytelist: 1)
-code[108] = op("OP_FROMALTSTACK", 108, nargs=lambda bytelist: 1)
-code[115] = op("OP_IFDUP", 115, nargs=lambda bytelist: 1)
-code[116] = op("OP_DEPTH", 116, nargs=lambda bytelist: 0)
-code[117] = op("OP_DROP", 117, nargs=lambda bytelist: 1)
-code[118] = op("OP_DUP", 118, nargs=lambda bytelist: 1)
-code[119] = op("OP_NIP", 119, nargs=lambda bytelist: 2)
-code[120] = op("OP_OVER", 120, nargs=lambda bytelist: 2)
-code[121] = op("OP_PICK", 121, nargs=lambda bytelist: bytelist[0] + 1) 
-code[122] = op("OP_ROLL", 122, nargs=lambda bytelist: bytelist[0] + 1)
-code[123] = op("OP_ROT", 123, nargs=lambda bytelist: 3)
-code[124] = op("OP_SWAP", 124, nargs=lambda bytelist: 2)
-code[125] = op("OP_TUCK", 125, nargs=lambda bytelist: 2)
-code[109] = op("OP_2DROP", 109, nargs=lambda bytelist: 2)
-code[110] = op("OP_2DUP", 110, nargs=lambda bytelist: 2)
-code[111] = op("OP_3DUP", 111, nargs=lambda bytelist: 3)
-code[112] = op("OP_2OVER", 112, nargs=lambda bytelist: 4)
-code[113] = op("OP_2ROT", 113, nargs=lambda bytelist: 6)
-code[114] = op("OP_2SWAP", 114, nargs=lambda bytelist: 4)
-code[130] = op("OP_SIZE", 130, nargs=lambda bytelist: 1)
-code[135] = op("OP_EQUAL", 135, nargs=lambda bytelist: 2)
-code[136] = op("OP_EQUALVERIFY", 136, nargs=lambda bytelist: 2)
-code[139] = op("OP_1ADD", 139, nargs=lambda bytelist: 1)
-code[140] = op("OP_1SUB", 140, nargs=lambda bytelist: 1)
-code[143] = op("OP_NEGATE", 143, nargs=lambda bytelist: 1)
-code[144] = op("OP_ABS", 144, nargs=lambda bytelist: 1)
-code[144] = op("OP_NOT", 145, nargs=lambda bytelist: 1)
-code[146] = op("OP_0NOTEQUAL", 146, nargs=lambda bytelist: 1)
-code[147] = op("OP_ADD", 147, nargs=lambda bytelist: 2)
-code[148] = op("OP_SUB", 148, nargs=lambda bytelist: 2)
-code[154] = op("OP_BOOLAND", 154, nargs=lambda bytelist: 2)
-code[155] = op("OP_BOOLOR", 155, nargs=lambda bytelist: 2)
-code[156] = op("OP_NUMEQUAL", 156, nargs=lambda bytelist: 2)
-code[157] = op("OP_NUMEQUALVERIFY", 157, nargs=lambda bytelist: 2)
-code[158] = op("OP_NUMNOTEQUAL", 158, nargs=lambda bytelist: 2)
-code[159] = op("OP_LESSTHAN", 159, nargs=lambda bytelist: 2)
-code[160] = op("OP_GREATHERTHAN", 160, nargs=lambda bytelist: 2)
-code[161] = op("OP_LESSTHANOREQUAL", 161, nargs=lambda bytelist: 2)
-code[162] = op("OP_GREATERTHANOREQUAL", 162, nargs=lambda bytelist: 2)
-code[163] = op("OP_MIN", 163, nargs=lambda bytelist: 2)
-code[164] = op("OP_MAX", 164, nargs=lambda bytelist: 2)
-code[165] = op("OP_WITHIN", 165, nargs=lambda bytelist: 3)
-code[166] = op("OP_RIPEMD160", 166, nargs=lambda bytelist: 3) #wrong args
-code[167] = op("OP_SHA1", 167, nargs=lambda bytelist: 1)
-code[168] = op("OP_SHA256", 168, nargs=lambda bytelist: 1)
-code[169] = op("OP_HASH160", 169, nargs=lambda bytelist: 1)
-code[170] = op("OP_HASH256", 170, nargs=lambda bytelist: 1)
-code[171] = op("OP_CODESEPARATOR", 171, nargs=lambda bytelist: 0)
-code[172] = op("OP_CHECKSIG", 172, nargs=lambda bytelist: 1)
-code[173] = op("OP_CHECKSIGVERIFY", 173, nargs=lambda bytelist: 1)
-code[174] = op("OP_CHECKMULTISIG", 174, nargs=lambda bytelist: None) #fix args
-code[175] = op("OP_CHECKMULTISIGVERIFY", 175, nargs=lambda bytelist: None) #fix args
+code[0] = op("OP_0",
+             0,
+             opfns.empty_array)
+
+# codes 1 through 75
+for i in xrange(1,76):
+    code[1] = op("",
+                 i,
+                 opfns.pusher_maker(i))
+
+code[76] = op("OP_PUSHDATA1",
+              76,
+              opfns.reader_pusher_maker(1))
+code[77] = op("OP_PUSHDATA2",
+              77,
+              opfns.reader_pusher_maker(2))
+code[78] = op("OP_PUSHDATA4",
+              77,
+              opfns.reader_pusher_maker(4))
+code[79] = op("OP_1NEGATE",
+              79,
+              opfns.numpusher_maker("FF"))
+code[81] = op("OP_1",
+              81,
+              opfns.numpusher_maker("FF"))
+code[82] = op("OP_2", 82)
+code[83] = op("OP_3", 83)
+code[84] = op("OP_4", 84)
+code[85] = op("OP_5", 85)
+code[86] = op("OP_6", 86)
+code[87] = op("OP_7", 87)
+code[88] = op("OP_8", 88)
+code[89] = op("OP_9", 89)
+code[90] = op("OP_10", 90)
+code[91] = op("OP_11", 91)
+code[92] = op("OP_12", 92)
+code[93] = op("OP_13", 93)
+code[94] = op("OP_14", 94)
+code[95] = op("OP_15", 95)
+code[96] = op("OP_16", 96)
+code[97] = op("OP_NOP", 97)
+code[99] = op("OP_IF", 99) #wrong args
+code[100] = op("OP_NOTIF", 100) #wrong args
+code[103] = op("OP_ELSE", 103) #wrong args
+code[104] = op("OP_ENDIF", 104)
+code[105] = op("OP_VERIFY", 105)
+code[106] = op("OP_RETURN", 106)
+code[107] = op("OP_TOALTSTACK", 107)
+code[108] = op("OP_FROMALTSTACK", 108)
+code[115] = op("OP_IFDUP", 115)
+code[116] = op("OP_DEPTH", 116)
+code[117] = op("OP_DROP", 117)
+code[118] = op("OP_DUP", 118)
+code[119] = op("OP_NIP", 119)
+code[120] = op("OP_OVER", 120)
+code[121] = op("OP_PICK", 121) 
+code[122] = op("OP_ROLL", 122)
+code[123] = op("OP_ROT", 123)
+code[124] = op("OP_SWAP", 124)
+code[125] = op("OP_TUCK", 125)
+code[109] = op("OP_2DROP", 109)
+code[110] = op("OP_2DUP", 110)
+code[111] = op("OP_3DUP", 111)
+code[112] = op("OP_2OVER", 112)
+code[113] = op("OP_2ROT", 113)
+code[114] = op("OP_2SWAP", 114)
+code[130] = op("OP_SIZE", 130)
+code[135] = op("OP_EQUAL", 135)
+code[136] = op("OP_EQUALVERIFY", 136)
+code[139] = op("OP_1ADD", 139)
+code[140] = op("OP_1SUB", 140)
+code[143] = op("OP_NEGATE", 143)
+code[144] = op("OP_ABS", 144)
+code[144] = op("OP_NOT", 145)
+code[146] = op("OP_0NOTEQUAL", 146)
+code[147] = op("OP_ADD", 147)
+code[148] = op("OP_SUB", 148)
+code[154] = op("OP_BOOLAND", 154)
+code[155] = op("OP_BOOLOR", 155)
+code[156] = op("OP_NUMEQUAL", 156)
+code[157] = op("OP_NUMEQUALVERIFY", 157)
+code[158] = op("OP_NUMNOTEQUAL", 158)
+code[159] = op("OP_LESSTHAN", 159)
+code[160] = op("OP_GREATHERTHAN", 160)
+code[161] = op("OP_LESSTHANOREQUAL", 161)
+code[162] = op("OP_GREATERTHANOREQUAL", 162)
+code[163] = op("OP_MIN", 163)
+code[164] = op("OP_MAX", 164)
+code[165] = op("OP_WITHIN", 165)
+code[166] = op("OP_RIPEMD160", 166) #wrong args
+code[167] = op("OP_SHA1", 167)
+code[168] = op("OP_SHA256", 168)
+code[169] = op("OP_HASH160", 169)
+code[170] = op("OP_HASH256", 170)
+code[171] = op("OP_CODESEPARATOR", 171)
+code[172] = op("OP_CHECKSIG", 172)
+code[173] = op("OP_CHECKSIGVERIFY", 173)
+code[174] = op("OP_CHECKMULTISIG", 174) #fix args
+code[175] = op("OP_CHECKMULTISIGVERIFY", 175)w #fix args
+
+

@@ -2,23 +2,24 @@
   A bitcoin transaction script language / vm implementation in python.
   Built based on info from [[https://en.bitcoin.it/wiki/Script][the bitcoin wiki]].
 
-* Status
-  This implementation is so broken.  Here's how it should work:
+* Description
+  Here's how it works:
 
-  There are three primary abstractions: opcodes, streams, and
-  machines.  A stream is a sequence of bytes; a python string seems
-  like a good way to do it.  A machine consists of two stacks (a
-  primary and alternative stack).  An opcode takes a stream and a
-  machine as input and does stuff (maybe mutates) one, both, or
-  neither.
+  There are three primary abstractions: opcodes, bytestreams, and
+  machines.  A stream is a sequence of bytes; it is implemented as a
+  wrapper around python strings of human readable hex (like 'AFAF').
+  A machine consists of two stacks (a primary and alternative stack).
+  An opcode takes a stream and a machine as input and does stuff
+  (maybe mutates) one, both, or neither.
 
   Byte streams will be a mixture of opcodes and 'raw' data.  The
   elements of the stacks are themselves bytestreams.  Raw data is
   interpreted as variable-length little-endian signed integers.
   Opcodes are one-byte unsigned little-endian ints.  This is kind of
-  obnoxious to deal with because interpreting
-  'this-string-is-human-readable-hex' seem to be big endian, so,
-  beware.
+  obnoxious to deal with because python methods for interpreting
+  'this-string-is-human-readable-hex' seem to be big endian.  So, be
+  sure to use bytestream.signed() and bytestream.unsigned() to
+  interpret bytestrings.
 
   There doesn't seem to be any reason to compile anything.  A script
   is interpreted by continually reading an opcode from a stream
