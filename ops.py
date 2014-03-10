@@ -38,7 +38,7 @@ code[0] = op("OP_0",
 
 # codes 1 through 75
 for i in xrange(1,76):
-    code[1] = op("",
+    code[i] = op("",
                  i,
                  opfns.pusher_maker(i))
 
@@ -54,24 +54,12 @@ code[78] = op("OP_PUSHDATA4",
 code[79] = op("OP_1NEGATE",
               79,
               opfns.numpusher_maker("FF"))
-code[81] = op("OP_1",
-              81,
-              opfns.numpusher_maker("FF"))
-code[82] = op("OP_2", 82)
-code[83] = op("OP_3", 83)
-code[84] = op("OP_4", 84)
-code[85] = op("OP_5", 85)
-code[86] = op("OP_6", 86)
-code[87] = op("OP_7", 87)
-code[88] = op("OP_8", 88)
-code[89] = op("OP_9", 89)
-code[90] = op("OP_10", 90)
-code[91] = op("OP_11", 91)
-code[92] = op("OP_12", 92)
-code[93] = op("OP_13", 93)
-code[94] = op("OP_14", 94)
-code[95] = op("OP_15", 95)
-code[96] = op("OP_16", 96)
+
+for i in xrange(1,17):
+    code[80+i] = op("OP_%d" % (i,),
+                    80+i,
+                    opfns.numpusher_maker(i))
+
 code[97] = op("OP_NOP", 97)
 code[99] = op("OP_IF", 99) #wrong args
 code[100] = op("OP_NOTIF", 100) #wrong args
@@ -79,11 +67,11 @@ code[103] = op("OP_ELSE", 103) #wrong args
 code[104] = op("OP_ENDIF", 104)
 code[105] = op("OP_VERIFY", 105)
 code[106] = op("OP_RETURN", 106)
-code[107] = op("OP_TOALTSTACK", 107)
-code[108] = op("OP_FROMALTSTACK", 108)
-code[115] = op("OP_IFDUP", 115)
-code[116] = op("OP_DEPTH", 116)
-code[117] = op("OP_DROP", 117)
+code[107] = op("OP_TOALTSTACK", 107, opfns.toalt)
+code[108] = op("OP_FROMALTSTACK", 108, opfns.fromalt)
+code[115] = op("OP_IFDUP", 115, opfns.ifdup)
+code[116] = op("OP_DEPTH", 116, opfns.depth)
+code[117] = op("OP_DROP", 117, opfns.drop)
 code[118] = op("OP_DUP", 118)
 code[119] = op("OP_NIP", 119)
 code[120] = op("OP_OVER", 120)
@@ -124,12 +112,14 @@ code[165] = op("OP_WITHIN", 165)
 code[166] = op("OP_RIPEMD160", 166) #wrong args
 code[167] = op("OP_SHA1", 167)
 code[168] = op("OP_SHA256", 168)
-code[169] = op("OP_HASH160", 169)
+code[169] = op("OP_HASH160",
+               169,
+               opfns.hash160)
 code[170] = op("OP_HASH256", 170)
 code[171] = op("OP_CODESEPARATOR", 171)
 code[172] = op("OP_CHECKSIG", 172)
 code[173] = op("OP_CHECKSIGVERIFY", 173)
 code[174] = op("OP_CHECKMULTISIG", 174) #fix args
-code[175] = op("OP_CHECKMULTISIGVERIFY", 175)w #fix args
+code[175] = op("OP_CHECKMULTISIGVERIFY", 175) #fix args
 
 
