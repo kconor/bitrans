@@ -15,17 +15,24 @@
   Byte streams will be a mixture of opcodes and 'raw' data.  The
   elements of the stacks are themselves bytestreams.  Raw data is
   interpreted as variable-length little-endian signed integers.
-  Opcodes are one-byte unsigned little-endian ints.  This is kind of
-  obnoxious to deal with because python methods for interpreting
-  'this-string-is-human-readable-hex' seem to be big endian.  So, be
-  sure to use bytestream.signed() and bytestream.unsigned() to
-  interpret bytestrings.
+  Opcodes are one-byte unsigned +little-endian+ big-endian ints.  This
+  is kind of obnoxious to deal with because python methods for
+  interpreting 'this-string-is-human-readable-hex' seem to be big
+  endian.  Also, the bitcoin protocol defines a pretty wacky
+  variable-length little-endian int in another part of the protocol; I
+  am not sure if little-endian byte streams are actually little endian
+  or that other little endian.  These details will need to be sorted.
+  In the meantime, be sure to use bytestream.signed(endian="{little|big}") and
+  bytestream.unsigned(endian="{little|big}") to interpret bytestrings.
 
   There doesn't seem to be any reason to compile anything.  A script
   is interpreted by continually reading an opcode from a stream
-  representing the script and applying the opcode to the stream and
-  a machine.  I think scripts have headers but I haven't quite
-  figured it out yet.
+  representing the script and applying the opcode to the stream and a
+  machine.  +I think scripts have headers but I haven't quite figured
+  it out yet.+ (Multiple) scripts are embedded in transactions which
+  provide some metadata.  A transaction is valid if all scripts do not
+  fail during interpretation and the top stack item after
+  interpretation is true.
 
 * Structure
   + ops.py: Opcode implementations.
@@ -39,11 +46,15 @@
   + Implement remaining opfns and ops
   + Write a parser for /tx/ data (to get transactions into the system)
     + https://en.bitcoin.it/wiki/Protocol_specification#tx
-    + transactions.transactions.__init__ has the very beginings.  
+    + transactions.transactions.__init__ has the very beginings.
+    + It looks like [[https://github.com/bitcoin-abe/bitcoin-abe][bitcoin-ABE]] has already done this, we should
+      probably just pull in their parser.
 
 * Fun todo
   + Write a higher-level representation which compiles to bytestreams.
   + Animate the process of interpreting a script.
+  + Throw a whole bunch of garbage at the vm and see if anything
+    causes it to lock up or overflow or something.
 
 
 
