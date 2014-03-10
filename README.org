@@ -32,5 +32,19 @@
   + opfns.py: Implementations of the functions that opcodes are built from.
   + machine.py: Stack machine implementation.
   + bytestream.py: Bytestream implementation.
+  + script.py: Implements a script.
+  + transaction.py: Parses and represents entire transactions.
+
+* Immediate todo
+  + Implement remaining opfns and ops
+  + Write a parser for /tx/ data (to get transactions into the system)
+    + https://en.bitcoin.it/wiki/Protocol_specification#tx
+    + transactions.transactions.__init__ has the very beginings.  
+
+* Fun todo
+  + Write a higher-level representation which compiles to bytestreams.
+  + Animate the process of interpreting a script.
+
+
 
   
