@@ -1,3 +1,0 @@
-[submodule "babe"]
-	path = bitcoinabe
-	url = git@github.com:hackscience/bitcoin-abe.git
