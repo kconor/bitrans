@@ -1,0 +1,3 @@
+[submodule "bitcoinabe"]
+	path = bitcoinabe
+	url = https://github.com/bitcoin-abe/bitcoin-abe.git
