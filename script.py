@@ -14,10 +14,13 @@ url_regex  = re.compile(
     r'(?:/?|[/?]\S+)$', re.IGNORECASE)
 
 class script:
-    def __init__(self, string):#sig, pubkey, string):
+    def __init__(self, s):#sig, pubkey, string):
         #self.sig = bytestream.fromunsigned(sig)
         #self.pubkey = bytestream.bytestream(pubkey)
-        self.bstream = bytestream.bytestream(string)
+        if isinstance(s, str):
+            self.bstream = bytestream.bytestream(s)
+        else:
+            self.bstream = s
         self.machine = machine.machine()
 
     def interpret(self):
