@@ -44,11 +44,6 @@
 
 * Immediate todo
   + Implement remaining opfns and ops
-  + Write a parser for /tx/ data (to get transactions into the system)
-    + https://en.bitcoin.it/wiki/Protocol_specification#tx
-    + transactions.transactions.__init__ has the very beginings.
-    + It looks like [[https://github.com/bitcoin-abe/bitcoin-abe][bitcoin-ABE]] has already done this, we should
-      probably just pull in their parser.
 
 * Fun todo
   + Write a higher-level representation which compiles to bytestreams.
