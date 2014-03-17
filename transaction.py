@@ -1,5 +1,6 @@
 import bytestream
 import script
+import machine
 
 class transaction:
     def __init__(self, txid, server):
@@ -13,7 +14,15 @@ class transaction:
         self.tx_out = [txout(stream) for i in xrange(self.tx_out_count)]
         self.lock_time = stream.read(4).unsigned()
 
-
+    def verify(self):
+        valid = True
+        for tin in self.tx_in:
+            tout = self.tx_out[tin.index]
+            combined_script = tin.script + tout.script
+            valid = valid and combined_script.interpret()
+        return valid
+            
+            
 class txin:
     def __init__(self, stream):
         self.hash = stream.read(32)
@@ -27,8 +36,3 @@ class txout:
         self.value = stream.read(8).unsigned()
         self.script_length = stream.readvarlensize()
         self.script = script.script(stream.read(self.script_length))
-
-
-    
-        
-        

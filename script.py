@@ -23,6 +23,9 @@ class script:
             self.bstream = s
         self.machine = machine.machine()
 
+    def __add__(self, other):
+        return script(self.bstream + other.bstream)
+
     def interpret(self):
         #self.machine.push(self.sig)
         #self.machine.push(self.pubkey)
@@ -32,5 +35,8 @@ class script:
             op = ops.code[code]
             print op
             op(self.bstream, self.machine)
+        if self.machine.peek().unsigned == 0:
+            return False
+        return True
             
             

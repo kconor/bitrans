@@ -126,7 +126,7 @@ def hash160(stream, machine):
     data = machine.pop()
     sha256 = hashlib.new('sha256')
     ripemd160 = hashlib.new('ripemd160')
-    sha256.update(data.signed())
+    sha256.update(data.stream)
     ripemd160.update(sha256.digest())
     return bytestream.bytestream(ripemd160.hexdigest())
         

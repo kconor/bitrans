@@ -28,6 +28,9 @@ class bytestream:
     def __str__(self):
         return self.__repr__()
 
+    def __add__(self, other):
+        return bytestream(self.stream + other.stream)
+
     def read(self, n):
         bytes = self.stream[:2*n]
         self.stream = self.stream[2*n:]

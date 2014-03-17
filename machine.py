@@ -13,7 +13,10 @@ class machine:
         return self.stack.pop()
 
     def popalt(self):
-        return self.alt.pop() 
+        return self.alt.pop()
+
+    def peek(self, n = -1):
+        return self.stack[n]
         
         
         
