@@ -3,8 +3,8 @@
   Built based on info from [[https://en.bitcoin.it/wiki/Script][the bitcoin wiki]].
   
 * Getting it running
-  1. Install [[https://en.bitcoin.it/wiki/Bitcoind][bitcoind]]
-  2. Enable the bitcoin rpc server in ~/bitcoin.conf by
+  - Install [[https://en.bitcoin.it/wiki/Bitcoind][bitcoind]]
+  - Enable the bitcoin rpc server in ~/bitcoin.conf by
      adding/uncommenting the following lines and replacing bracketed
      things:
      - server=1
@@ -12,30 +12,30 @@
      - rpcpassword=[yourPass]
      - rpcport=8332
      - rpcconnect=127.0.0.1
-  3. Spin up a bitcoind daemon:
+  - Spin up a bitcoind daemon:
 #+begin_src sh
 bitcoind -daemon
 #+end_src
-  4. Get bitrans:
+  - Get bitrans:
 #+begin_src sh
 git clone https://github.com/hackscience/bitrans.git
 cd bitrans
 #+end_src     
-  5. Fire up python:
+  - Fire up python:
 #+begin_src sh
 python
 #+end_src
-  6. Establish a connection to the bitcoind daemon
+  - Establish a connection to the bitcoind daemon
 #+begin_src py
 >>> import rpc
 >>> s = rpc.jsonrpc("yourUser","yourPass")
 #+end_src
-  7. Grab a transaction
+  - Grab a transaction
 #+begin_src py
 >>> import transaction
 >>> t = transaction.transaction('4ea20607ea2188dbb2454f6c00dd989124bfdf51d6e524a73df36688c35ff48e',s)
 #+end_src
-  8. Verify the transaction:
+  - Verify the transaction:
 #+begin_src py
 t.verify()
 #+end_src
