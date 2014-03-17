@@ -14,12 +14,12 @@ class transaction:
         self.tx_out = [txout(stream) for i in xrange(self.tx_out_count)]
         self.lock_time = stream.read(4).unsigned()
 
-    def verify(self):
+    def verify(self, animate=False):
         valid = True
         for tin in self.tx_in:
             tout = self.tx_out[tin.index]
             combined_script = tin.script + tout.script
-            valid = valid and combined_script.interpret()
+            valid = valid and combined_script.interpret(animate=animate)
         return valid
             
             

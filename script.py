@@ -1,4 +1,5 @@
 import re
+import os
 
 import ops
 import bytestream
@@ -26,15 +27,18 @@ class script:
     def __add__(self, other):
         return script(self.bstream + other.bstream)
 
-    def interpret(self):
+    def interpret(self, animate=False):
         #self.machine.push(self.sig)
         #self.machine.push(self.pubkey)
+        if animate:
+            self.machine.draw()
         while not self.bstream.isempty():
             code = self.bstream.read(1).unsigned(endian="big")
-            print code
             op = ops.code[code]
             print op
             op(self.bstream, self.machine)
+            if animate:
+                self.machine.draw()
         if self.machine.peek().unsigned == 0:
             return False
         return True

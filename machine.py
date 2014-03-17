@@ -17,6 +17,10 @@ class machine:
 
     def peek(self, n = -1):
         return self.stack[n]
+
+    def draw(self):
+        print "stack |%s" % ("*" * len(self.stack),)
+        print "alt   |%s" % ("*" * len(self.alt),)
         
         
         
