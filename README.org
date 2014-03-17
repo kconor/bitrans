@@ -15,16 +15,8 @@
   Byte streams will be a mixture of opcodes and 'raw' data.  The
   elements of the stacks are themselves bytestreams.  Raw data is
   interpreted as variable-length little-endian signed integers.
-  Opcodes are one-byte unsigned +little-endian+ big-endian ints.  This
-  is kind of obnoxious to deal with because python methods for
-  interpreting 'this-string-is-human-readable-hex' seem to be big
-  endian.  Also, the bitcoin protocol defines a pretty wacky
-  variable-length little-endian int in another part of the protocol; I
-  am not sure if little-endian byte streams are actually little endian
-  or that other little endian.  These details will need to be sorted.
-  In the meantime, be sure to use bytestream.signed(endian="{little|big}") and
-  bytestream.unsigned(endian="{little|big}") to interpret bytestrings.
-
+  Opcodes are one-byte unsigned +little-endian+ big-endian ints.
+  
   There doesn't seem to be any reason to compile anything.  A script
   is interpreted by continually reading an opcode from a stream
   representing the script and applying the opcode to the stream and a
