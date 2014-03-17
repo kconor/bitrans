@@ -3,6 +3,13 @@ import hashlib
 
 import bytestream
 
+class InvalidTransactionException(Exception):
+    def __init__(self, msg):
+        self.msg = msg
+
+    def __str__(self):
+        return repr(self.msg)
+
 # op function implementations
 def empty_array(stream, machine):
     empty_array = bytestream("")
@@ -59,8 +66,8 @@ def drop(stream, machine):
 # should return data and copied data
 def dup(stream, machine):
     data = machine.stack.pop()
-    machine.stack.push(copy.deepcopy(data))
-    machine.stack.push(data)
+    machine.push(copy.deepcopy(data))
+    machine.push(data)
     return data
 
 def nip(stream, machine):
@@ -130,3 +137,26 @@ def hash160(stream, machine):
     ripemd160.update(sha256.digest())
     return bytestream.bytestream(ripemd160.hexdigest())
         
+def equal(stream, machine):
+    x1 = machine.pop()
+    x2 = machine.pop()
+    if x1 == x2:
+        machine.push(bytestream.fromunsigned(1))
+    else:
+        machine.push(bytestream.fromunsigned(0))
+
+def verifier_maker(f, msg):
+    def verifier(stream, machine):
+        f(stream, machine)
+        top = machine.peek().unsigned()
+        if top == 0:
+            raise InvalidTransactionException(msg)
+        else:
+            machine.pop()
+    return verifier
+
+def disabled_maker(msg):
+    def disabled(stream, machine):
+        raise InvalidTransactionException(msg)
+    return disabled
+    

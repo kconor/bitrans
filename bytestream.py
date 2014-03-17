@@ -31,6 +31,9 @@ class bytestream:
     def __add__(self, other):
         return bytestream(self.stream + other.stream)
 
+    def __eq__(self, other):
+        return self.stream == other.stream
+
     def read(self, n):
         bytes = self.stream[:2*n]
         self.stream = self.stream[2*n:]
