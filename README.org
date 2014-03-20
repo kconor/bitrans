@@ -4,17 +4,18 @@
   
 * Getting it running
   - Install [[https://en.bitcoin.it/wiki/Bitcoind][bitcoind]]
-  - Enable the bitcoin rpc server in ~/bitcoin.conf by
+  - Enable the bitcoin rpc server and historical transaction indexing in ~/bitcoin.conf by
      adding/uncommenting the following lines and replacing bracketed
      things:
+     - txindex=1
      - server=1
      - rpcuser=[yourUser]
      - rpcpassword=[yourPass]
      - rpcport=8332
      - rpcconnect=127.0.0.1
-  - Spin up a bitcoind daemon:
+  - Spin up a bitcoind daemon, rebuilding the historical index:
 #+begin_src sh
-bitcoind -daemon
+bitcoind -daemon -reindex
 #+end_src
   - Get bitrans:
 #+begin_src sh
