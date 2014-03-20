@@ -27,7 +27,7 @@ def reader_pusher_maker(i):
     def reader_pusher(stream, machine):
         nbytes = stream.read(i).unsigned()
         data = stream.read(nbytes)
-        machine.push(i)
+        machine.push(data)
         return data
     return reader_pusher
 
