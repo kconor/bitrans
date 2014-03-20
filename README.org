@@ -15,7 +15,7 @@
      - rpcconnect=127.0.0.1
   - Spin up a bitcoind daemon, rebuilding the historical index:
 #+begin_src sh
-bitcoind -daemon -reindex
+bitcoind -conf=/path/to/your/bitcoin.conf -daemon -reindex
 #+end_src
   - Get bitrans:
 #+begin_src sh
