@@ -4,6 +4,7 @@ import machine
 
 class transaction:
     def __init__(self, txid, server):
+        self.server = server
         tx = server("getrawtransaction", txid, 1)
         self.txid = txid
         stream = bytestream.bytestream(tx['hex'])
@@ -17,7 +18,8 @@ class transaction:
     def verify(self, animate=False):
         valid = True
         for tin in self.tx_in:
-            tout = self.tx_out[tin.index]
+            prev_tran = transaction(tin.prev_hash, self.server)
+            tout = prev_tran.tx_out[tin.index]
             combined_script = tin.script + tout.script
             valid = valid and combined_script.interpret(animate=animate)
         return valid
@@ -25,7 +27,7 @@ class transaction:
             
 class txin:
     def __init__(self, stream):
-        self.hash = stream.read(32)
+        self.prev_hash = str(stream.read(32).reverse().stream)
         self.index = stream.read(4).unsigned()
         self.script_length = stream.readvarlensize()
         self.script = script.script(stream.read(self.script_length))

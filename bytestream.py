@@ -34,6 +34,10 @@ class bytestream:
     def __eq__(self, other):
         return self.stream == other.stream
 
+    def reverse(self):
+        bits = self.stream.decode('hex_codec')
+        return bytestream(bits[::-1].encode('hex'))
+        
     def read(self, n):
         bytes = self.stream[:2*n]
         self.stream = self.stream[2*n:]
