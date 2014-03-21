@@ -135,7 +135,7 @@ def hash160(stream, machine):
     data = machine.pop()
     sha256 = hashlib.new('sha256')
     ripemd160 = hashlib.new('ripemd160')
-    sha256.update(data.stream.decode('hex_codec'))
+    sha256.update(data.stream.decode('hex'))
     ripemd160.update(sha256.digest())
     hashed = bytestream.bytestream(ripemd160.hexdigest())
     machine.push(hashed)
