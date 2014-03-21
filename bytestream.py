@@ -52,18 +52,20 @@ class bytestream:
         return len(self.stream) < 1
 
     def unsigned(self,endian="little"):
-        x = int(self.stream, 16)
+        #x = int(self.stream, 16)
+        #if endian == "little":
+        #    rev_x = 0
+        #    
+        #    nbits = len(self.stream)*4
+        #    # reverse bits
+        #    for i in xrange(nbits):
+        #        if (x & (1 << i)):
+        #            rev_x |= (1 << (nbits - 1 - i))
+        #    return rev_x
         if endian == "little":
-            rev_x = 0
-            
-            nbits = len(self.stream)*4
-            # reverse bits
-            for i in xrange(nbits):
-                if (x & (1 << i)):
-                    rev_x |= (1 << (nbits - 1 - i))
-            return rev_x
+            return int((self.stream.decode('hex_codec')[::-1]).encode('hex'),16)
         else:
-            return x
+            return int(self.stream, 16)
         
     def signed(self,endian="little"):
         nbits = len(self.stream)*4
