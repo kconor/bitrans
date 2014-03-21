@@ -130,11 +130,15 @@ def dup3(stream, machine):
     return i1
 
 def hash160(stream, machine):
+    import pdb
+    pdb.set_trace()
     data = machine.pop()
     sha256 = hashlib.new('sha256')
     ripemd160 = hashlib.new('ripemd160')
-    sha256.update(data.stream)
+    sha256.update(data.stream.decode('hex_codec'))
     ripemd160.update(sha256.digest())
+    hashed = bytestream.bytestream(ripemd160.hexdigest())
+    machine.push(hashed)
     return bytestream.bytestream(ripemd160.hexdigest())
         
 def equal(stream, machine):
