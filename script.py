@@ -1,5 +1,6 @@
 import re
 import os
+import copy
 
 import ops
 import bytestream
@@ -15,31 +16,39 @@ url_regex  = re.compile(
     r'(?:/?|[/?]\S+)$', re.IGNORECASE)
 
 class script:
-    def __init__(self, s):#sig, pubkey, string):
-        #self.sig = bytestream.fromunsigned(sig)
-        #self.pubkey = bytestream.bytestream(pubkey)
+    def __init__(self, s):
         if isinstance(s, str):
             self.bstream = bytestream.bytestream(s)
         else:
             self.bstream = s
         self.machine = machine.machine()
+        self.original_bstream = copy.deepcopy(self.bstream)
 
     def __add__(self, other):
         return script(self.bstream + other.bstream)
 
-    def interpret(self, animate=False):
-        #self.machine.push(self.sig)
-        #self.machine.push(self.pubkey)
+    def __len__(self):
+        return len(self.original_bstream)
+
+    def stream(self):
+        return copy.deepcopy(self.original_bstream)
+
+    def interpret(self, transaction, index, animate=False):
+        verification_copy = copy.deepcopy(self)
         if animate:
             self.machine.draw()
         while not self.bstream.isempty():
             code = self.bstream.read(1).unsigned(endian="big")
             op = ops.code[code]
             print op
-            op(self.bstream, self.machine)
+            if op.word == 'OP_CHECKSIG':  #checksig is a special case
+                op(self.bstream, self.machine, transaction, index, verification_copy)
+            else:
+                op(self.bstream, self.machine)
             if animate:
                 self.machine.draw()
-        if self.machine.peek().unsigned == 0:
+        self.bstream = self.stream()
+        if self.machine.peek().unsigned() == 0:
             return False
         return True
             

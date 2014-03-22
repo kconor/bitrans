@@ -130,8 +130,6 @@ def dup3(stream, machine):
     return i1
 
 def hash160(stream, machine):
-    import pdb
-    pdb.set_trace()
     data = machine.pop()
     sha256 = hashlib.new('sha256')
     ripemd160 = hashlib.new('ripemd160')
@@ -163,4 +161,60 @@ def disabled_maker(msg):
     def disabled(stream, machine):
         raise InvalidTransactionException(msg)
     return disabled
+
+# this breaks the usual interface; added a special case to the
+# interpreter
+def checksig(stream, machine, transaction, index, verification_copy):
+    """
+    For details, please see https://en.bitcoin.it/wiki/OP_CHECKSIG.
+    """
+    
+    # How it works
+    # Firstly always this (the default) procedure is
+    # applied: Signature verification process of the default procedure
+    # the public key and the signature are popped from the stack, in
+    # that order. If the hash-type value is 0, then it is replaced by
+    # the last_byte of the signature. Then the last byte of the
+    # signature is always deleted.
+    pubkey = machine.pop()
+    sig = machine.pop()
+    #sig.stream = sig.stream[:-2]  # this is actually done later
+    
+    # A new subscript is created from the instruction from the most
+    # recently parsed OP_CODESEPARATOR (last one in script) to the end
+    # of the script. If there is no OP_CODESEPARATOR the entire script
+    # becomes the subscript (hereby referred to as subScript)
+    #  not implemented yet (james)
+
+    # The sig is deleted from subScript.
+    #  note: this is nonstandard so I am ignoring it (james)
+    
+    # All OP_CODESEPARATORS are removed from subScript
+    #  not implemented yet (james)
+    
+    # The hashtype is removed from the last byte of the sig and stored (as 4 bytes)
+    hashtype = bytestream.fromunsigned(bytestream.bytestream(sig.stream[-2:]).unsigned(),4)
+    sig.stream = sig.stream[:-2]
+    
+    # A copy is made of the current transaction (hereby referred to txCopy)
+    txCopy = copy.deepcopy(transaction)
+    
+    # The scripts for all transaction inputs in txCopy are set to empty scripts (exactly 1 byte 0x00)
+    for i in xrange(txCopy.tx_in_count):
+        txCopy.tx_in[i].script_length = 0
+        txCopy.tx_in[i].script = bytestream.fromunsigned(0,1)
+    
+    # The script for the current transaction input in txCopy is set to subScript (lead in by its length as a var-integer encoded!)
+    txCopy.tx_in[index-1].script_length = len(verification_copy)
+    txCopy.tx_in[index-1].script = verification_copy
+
+    # Serialize txCopy and append hashtype
+    serial = txCopy.encode() + hashtype
+
+    # hash twice with sha256
+    hash = ((hashlib.sha256(hashlib.sha256(serial.stream.decode('hex')).digest()).digest())[::-1]).encode('hex_codec')
+
+    # verify via ecdsa
+    #  not implelemted yet, pushing false (james)
+    machine.push(bytestream.fromunsigned(0,1))
     

@@ -1,6 +1,10 @@
 import math
 
 def fromunsigned(x, nbytes=None):
+    """
+    This is a gross hack and I'm not sure if it works (james)
+    """
+    
     if nbytes is None:
         if x == 0:
             nbytes = 1
@@ -18,6 +22,17 @@ def fromunsigned(x, nbytes=None):
         h = '00' + h
     return bytestream(h)
 
+def fromvarlen(x):
+    if x < 0xfd:
+        return fromunsigned(x,1)
+    elif x <= 0xffff:
+        return bytestream('fd') + fromunsigned(x,2)
+    elif x <= 0xfffffff:
+        return bytestream('fe') + fromunsigned(x,4)
+    else:
+        return bytestream('ff') + fromunsigned(x,8)
+    
+
 class bytestream:
     def __init__(self,string):
         self.stream = string
@@ -33,6 +48,12 @@ class bytestream:
 
     def __eq__(self, other):
         return self.stream == other.stream
+
+    def __len__(self):
+        """
+        Returns length in bytes.
+        """
+        return len(self.stream) / 2
 
     def reverse(self):
         bits = self.stream.decode('hex_codec')
@@ -52,16 +73,6 @@ class bytestream:
         return len(self.stream) < 1
 
     def unsigned(self,endian="little"):
-        #x = int(self.stream, 16)
-        #if endian == "little":
-        #    rev_x = 0
-        #    
-        #    nbits = len(self.stream)*4
-        #    # reverse bits
-        #    for i in xrange(nbits):
-        #        if (x & (1 << i)):
-        #            rev_x |= (1 << (nbits - 1 - i))
-        #    return rev_x
         if endian == "little":
             return int((self.stream.decode('hex_codec')[::-1]).encode('hex'),16)
         else:

@@ -119,7 +119,7 @@ code[169] = op("OP_HASH160",
                opfns.hash160)
 code[170] = op("OP_HASH256", 170)
 code[171] = op("OP_CODESEPARATOR", 171)
-code[172] = op("OP_CHECKSIG", 172)
+code[172] = op("OP_CHECKSIG", 172, opfns.checksig)
 code[173] = op("OP_CHECKSIGVERIFY", 173)
 code[174] = op("OP_CHECKMULTISIG", 174) #fix args
 code[175] = op("OP_CHECKMULTISIGVERIFY", 175) #fix args

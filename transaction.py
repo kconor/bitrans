@@ -21,9 +21,21 @@ class transaction:
             prev_tran = transaction(tin.prev_hash, self.server)
             tout = prev_tran.tx_out[tin.index]
             combined_script = tin.script + tout.script
-            valid = valid and combined_script.interpret(animate=animate)
+            valid = valid and combined_script.interpret(self, tin.index, animate=animate)
         return valid
-            
+
+    def encode(self):
+        stream = bytestream.bytestream('')
+        stream += bytestream.fromunsigned(self.version)
+        stream += bytestream.fromvarlen(self.tx_in_count)
+        for tx_in in self.tx_in:
+            stream += tx_in.encode()
+        stream += bytestream.fromvarlen(self.tx_out_count)
+        for tx_out in self.tx_out:
+            stream += tx_out.encode()
+        stream += bytestream.fromunsigned(self.lock_time,4)
+        return stream
+
             
 class txin:
     def __init__(self, stream):
@@ -33,8 +45,24 @@ class txin:
         self.script = script.script(stream.read(self.script_length))
         self.sequence = stream.read(4).unsigned()
 
+    def encode(self):
+        stream = bytestream.bytestream("")
+        stream += bytestream.bytestream(self.prev_hash).reverse()
+        stream += bytestream.fromunsigned(self.index,4)
+        stream += bytestream.fromvarlen(self.script_length)
+        stream += self.script.stream()
+        stream += bytestream.fromunsigned(self.sequence,4)
+        return stream
+
 class txout:
     def __init__(self, stream):
         self.value = stream.read(8).unsigned()
         self.script_length = stream.readvarlensize()
         self.script = script.script(stream.read(self.script_length))
+
+    def encode(self):
+        stream = bytestream.bytestream("")
+        stream += bytestream.fromunsigned(self.value,8)
+        stream += bytestream.fromvarlen(self.script_length)
+        stream += self.script.stream()
+        return stream
