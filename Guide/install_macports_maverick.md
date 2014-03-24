@@ -2,7 +2,7 @@
 sudo port install bitcoind 
 
 if you *recently* update to Mavericks without migrating your macports accordingly, the installation will most likely to break. (The ports dependencies won't work.) 
-- This guide talks about how to migrate your macports.[[https://trac.macports.org/wiki/Migration][migrate]]
+- This guide talks about how to migrate your macports.[migrate](https://trac.macports.org/wiki/Migration)
 	- step 1: update your xcode (this includes running "xcode-select --install)
 	- step 2: [[https://distfiles.macports.org/MacPorts/MacPorts-2.2.1-10.9-Mavericks.pkg][download]] the macports for mavericks and install it
 	- step 3: Reinstall ports
