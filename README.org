@@ -4,6 +4,7 @@
   
 * Getting it running
   - Install [[https://en.bitcoin.it/wiki/Bitcoind][bitcoind]]
+     - Guide for installing using Macports on Maverick [[][guide]]
   - Enable the bitcoin rpc server and historical transaction indexing in ~/bitcoin.conf by
      adding/uncommenting the following lines and replacing bracketed
      things:
