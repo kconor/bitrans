@@ -13,7 +13,7 @@
      - rpcpassword=[yourPass]
      - rpcport=8332
      - rpcconnect=127.0.0.1
-  - Spin up a bitcoind daemon, rebuilding the historical index:
+  - Spin up a bitcoind daemon, rebuilding the historical index [note: this will take some time]
 #+begin_src sh
 bitcoind -conf=/path/to/your/bitcoin.conf -daemon -reindex
 #+end_src
@@ -22,6 +22,7 @@ bitcoind -conf=/path/to/your/bitcoin.conf -daemon -reindex
 git clone https://github.com/hackscience/bitrans.git
 cd bitrans
 #+end_src     
+  - Install the python [[https://pypi.python.org/pypi/ecdsa][ecdsa lib]].
   - Fire up python:
 #+begin_src sh
 python
@@ -40,7 +41,6 @@ python
 #+begin_src py
 t.verify()
 #+end_src
-
 
 * Description
   Here's how it works:

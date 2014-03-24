@@ -213,13 +213,14 @@ def checksig(stream, machine, transaction, index, verification_copy):
     serial = txCopy.encode() + hashtype
 
     # hash twice with sha256
-    msg = ((hashlib.sha256(hashlib.sha256(serial.stream.decode('hex')).digest()).digest())[::-1]).encode('hex_codec')
+    msg = ((hashlib.sha256(hashlib.sha256(serial.stream.decode('hex')).digest()).digest())[::-1]) # .encode('hex_codec')
 
     # verify via ecdsa
-    # pubkey seems to have one more byte than it should; unsure what is up
-    vk = ecdsa.VerifyingKey.from_string(pubkey.stream, curve=ecdsa.SECP256k1)
+    import pdb
+    pdb.set_trace()
+    vk = ecdsa.VerifyingKey.from_string(pubkey.stream[2:].decode('hex'), curve=ecdsa.SECP256k1)
     try:
-        vk.verify(sig.stream, msg)
+        vk.verify(sig.stream.decode('hex'), msg)
         machine.push(bytestream.fromunsigned(1,1))
     except ecdsa.BadSignatureError:
         machine.push(bytestream.fromunsigned(0,1))
