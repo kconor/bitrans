@@ -1,0 +1,2 @@
+#Normal (Simple) Way
+
