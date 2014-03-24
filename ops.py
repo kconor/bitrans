@@ -31,6 +31,12 @@ class op:
         else:
             return 1
 
+    def stream(self):
+        string = hex(self.opcode)[2:]
+        if len(string) < 2:
+            string = '0' + string
+        return bytestream.bytestream(string)
+
 code = [None] * 256
 code[0] = op("OP_0",
              0,
@@ -38,7 +44,7 @@ code[0] = op("OP_0",
 
 # codes 1 through 75
 for i in xrange(1,76):
-    code[i] = op("",
+    code[i] = op("OP_PUSH%d" % (i,),
                  i,
                  opfns.pusher_maker(i))
 

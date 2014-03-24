@@ -216,8 +216,7 @@ def checksig(stream, machine, transaction, index, verification_copy):
     msg = ((hashlib.sha256(hashlib.sha256(serial.stream.decode('hex')).digest()).digest())[::-1]) # .encode('hex_codec')
 
     # verify via ecdsa
-    import pdb
-    pdb.set_trace()
+    print "OP_CHECKSIG still not working right, this is going to crash"
     vk = ecdsa.VerifyingKey.from_string(pubkey.stream[2:].decode('hex'), curve=ecdsa.SECP256k1)
     try:
         vk.verify(sig.stream.decode('hex'), msg)
