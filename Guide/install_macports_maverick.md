@@ -1,4 +1,4 @@
--Normal (Simple) Way
+###Normal (Simple) Way
 sudo port install bitcoind 
 
 if you *recently* update to Mavericks without migrating your macports accordingly, the installation will most likely to break. (The ports dependencies won't work.) 
@@ -12,7 +12,7 @@ if you *recently* update to Mavericks without migrating your macports accordingl
 		- sudo port install portname +variant1 +variant2 #Install "portname" one by one by browsing myports.txt
 			- alternative, you can reinstall ports all in once.
 	- setp 4: sudo port install bitcoind 
--start bitcoind as daemon 
+###start bitcoind as daemon 
 	- Step 1: ln -s ~/Library/Application\ Support/Bitcoin ~/.bitcoin
 	- Step 2: touch ~/.bitcoin/bitcoin.conf
 	- Step 3: chmod 400 ~/.bitcoin/bitcoin.conf(daemonize won't work if it is owner-read only)
