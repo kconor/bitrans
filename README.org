@@ -14,7 +14,11 @@
      - rpcpassword=[yourPass]
      - rpcport=8332
      - rpcconnect=127.0.0.1
-  - Spin up a bitcoind daemon, rebuilding the historical index [note: this will take some time]
+  - Spin up a bitcoind daemon, rebuilding the historical index.  This
+    will take some time to complete; about a day for all transactions.
+    You will be able to work with the current state of the index,
+    though, so transactions from early blocks should work pretty
+    quickly.
 #+begin_src sh
 bitcoind -conf=/path/to/your/bitcoin.conf -daemon -reindex
 #+end_src
