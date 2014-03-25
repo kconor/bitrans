@@ -18,9 +18,14 @@ class transaction:
     def verify(self, animate=False):
         valid = True
         for tin in self.tx_in:
-            prev_tran = transaction(tin.prev_hash, self.server)
-            tout = prev_tran.tx_out[tin.index]
-            combined_script = tin.script + tout.script
+            # coinbase transactions do not refer to a previous output
+            if tin.is_coinbase:
+                combined_script = tin.script
+            # but other transactions do
+            else:
+                prev_tran = transaction(tin.prev_hash, self.server)
+                tout = prev_tran.tx_out[tin.index]
+                combined_script = tin.script + tout.script
             valid = valid and combined_script.interpret(self, tin.index, animate=animate)
         return valid
 
@@ -44,6 +49,11 @@ class txin:
         self.script_length = stream.readvarlensize()
         self.script = script.script(stream.read(self.script_length))
         self.sequence = stream.read(4).unsigned()
+
+        if int(self.prev_hash,16) == 0:
+            self.is_coinbase = True
+        else:
+            self.is_coinbase = False
 
     def encode(self):
         stream = bytestream.bytestream("")
