@@ -130,4 +130,9 @@ code[173] = op("OP_CHECKSIGVERIFY", 173)
 code[174] = op("OP_CHECKMULTISIG", 174) #fix args
 code[175] = op("OP_CHECKMULTISIGVERIFY", 175) #fix args
 
+# index ops by word too
+word = {}
+for an_op in code:
+    if an_op is not None:
+        word[an_op.word] = an_op
 
