@@ -51,7 +51,7 @@ class bytestream:
 
     def __len__(self):
         """
-        Returns length in bytes.
+        Returns length in bytes. Since hex representation is 4 bits
         """
         return len(self.stream) / 2
 

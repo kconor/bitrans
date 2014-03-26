@@ -9,13 +9,13 @@ class machine:
     def pushalt(self, bstream):
         self.alt.append(bstream)
 
-    def pop(self):
-        return self.stack.pop()
+    def pop(self, n=-1):
+        return self.stack.pop(n)
 
     def popalt(self):
         return self.alt.pop()
 
-    def peek(self, n = -1):
+    def peek(self, n=-1):
         return self.stack[n]
 
     def draw(self):
