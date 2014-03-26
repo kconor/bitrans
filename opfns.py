@@ -11,6 +11,19 @@ class InvalidTransactionException(Exception):
     def __str__(self):
         return repr(self.msg)
 
+
+###### Flow Control #########
+
+def nop(stream, machine):
+    pass
+
+
+def op_if(stream, machine):
+    data = machine.stack.pop()
+    assert type(data) == int
+    if data != 0:  # execute statement
+        pass
+
 # op function implementations
 def empty_array(stream, machine):
     empty_array = bytestream("")
@@ -129,6 +142,60 @@ def dup3(stream, machine):
     machine.stack.push(i2)
     machine.stack.push(i1)
     return i1
+
+
+def over2(stream, machine):
+    i1 = copy.deepcopy(machine.peek[-4])
+    i2 = copy.deepcopy((machine.peek[-3]))
+
+    machine.push(i1)
+    machine.push(i2)
+
+
+def rot2(stream, machine):
+    i1 = machine.pop(-6)
+    i2 = machine.pop(-5)
+
+    machine.push(i1)
+    machine.push(i2)
+
+
+def swap2(stream, machine):
+    i1 = machine.pop(-4)
+    i2 = machine.pop(-3)
+
+    machine.push(i1)
+    machine.push(i2)
+
+
+#TODO please double check (tian)
+def opt_size(stream, machine):
+    top_element = machine.peek() # hex value
+    if top_element[2:] == '\\x':
+        hex_value = top_element[2:]  # get ride of \x
+    else:
+        hex_value = top_element
+    string_top_element = ''.join([chr(int(s, 16))
+                                  for s in [hex_value[i: i+2] for i in range(0, len(hex_value), 2)]])
+    size_top = len(string_top_element)
+    machine.push(bytestream.bytestream(hex(size_top)))  # push hex representation of size_top
+
+
+######## Arithmetic ops #############
+
+def op_add1(stream, machine):
+    top_element = machine.pop()
+    if top_element[2:] == '\\x':
+        hex_value = top_element[2:]  # get ride of \x
+    else:
+        hex_value = top_element
+    top_stream = bytestream.bytestream(hex_value)
+
+    if len(top_stream) > 4:  # input is longer than 4 bytes
+        raise InvalidTransactionException('Integer longer than 4 bytes')
+
+    machine.push(bytestream.bytestream(hex(top_stream.unsigned()+1)))  #TODO verify little or big
+
 
 def hash160(stream, machine):
     data = machine.pop()

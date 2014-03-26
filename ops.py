@@ -66,7 +66,7 @@ for i in xrange(1,17):
                     80+i,
                     opfns.numpusher_maker(i))
 
-code[97] = op("OP_NOP", 97)
+code[97] = op("OP_NOP", 97, opfns.nop)
 code[99] = op("OP_IF", 99) #wrong args
 code[100] = op("OP_NOTIF", 100) #wrong args
 code[103] = op("OP_ELSE", 103) #wrong args
@@ -89,15 +89,15 @@ code[125] = op("OP_TUCK", 125, opfns.tuck)
 code[109] = op("OP_2DROP", 109, opfns.drop2)
 code[110] = op("OP_2DUP", 110, opfns.dup2)
 code[111] = op("OP_3DUP", 111, opfns.dup3)
-code[112] = op("OP_2OVER", 112)
-code[113] = op("OP_2ROT", 113)
-code[114] = op("OP_2SWAP", 114)
-code[130] = op("OP_SIZE", 130)
+code[112] = op("OP_2OVER", 112, opfns.over2)
+code[113] = op("OP_2ROT", 113, opfns.rot2)
+code[114] = op("OP_2SWAP", 114, opfns.swap2)
+code[130] = op("OP_SIZE", 130, opfns.opt_size)
 code[135] = op("OP_EQUAL", 135, opfns.equal)
 code[136] = op("OP_EQUALVERIFY",
                136,
                opfns.verifier_maker(opfns.equal, "OP_EQUALVERIFY failed"))
-code[139] = op("OP_1ADD", 139)
+code[139] = op("OP_1ADD", 139, opfns.op_add1)
 code[140] = op("OP_1SUB", 140)
 code[143] = op("OP_NEGATE", 143)
 code[144] = op("OP_ABS", 144)
