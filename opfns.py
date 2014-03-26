@@ -232,7 +232,7 @@ def disabled_maker(msg):
 
 # this breaks the usual interface; added a special case to the
 # interpreter
-def checksig(stream, machine, transaction, index, verification_copy):
+def checksig(stream, machine, transaction, index, verification_copy, subscript):
     """
     For details, please see https://en.bitcoin.it/wiki/OP_CHECKSIG.
     """
@@ -260,15 +260,13 @@ def checksig(stream, machine, transaction, index, verification_copy):
     # All OP_CODESEPARATORS are removed from subScript
     #  not implemented yet (james)
 
-    #import pdb
-    #pdb.set_trace()
-    
     # The hashtype is removed from the last byte of the sig and stored (as 4 bytes)
     hashtype = bytestream.fromunsigned(bytestream.bytestream(sig.stream[-2:]).unsigned(),4)
     sig.stream = sig.stream[:-2]
     
     # A copy is made of the current transaction (hereby referred to txCopy)
     txCopy = copy.deepcopy(transaction)
+    #txCopy = verification_copy
     
     # The scripts for all transaction inputs in txCopy are set to empty scripts (exactly 1 byte 0x00)
     for i in xrange(txCopy.tx_in_count):
@@ -276,8 +274,10 @@ def checksig(stream, machine, transaction, index, verification_copy):
         txCopy.tx_in[i].script = bytestream.fromunsigned(0,1)
     
     # The script for the current transaction input in txCopy is set to subScript (lead in by its length as a var-integer encoded!)
-    txCopy.tx_in[index-1].script_length = len(verification_copy)
-    txCopy.tx_in[index-1].script = verification_copy
+    #txCopy.tx_in[index-1].script_length = len(verification_copy)
+    #txCopy.tx_in[index-1].script = verification_copy
+    txCopy.tx_in[index-1].script_length = len(subscript)
+    txCopy.tx_in[index-1].script = subscript
     
     # Serialize txCopy and append hashtype
     serial = txCopy.encode() + hashtype
@@ -286,7 +286,6 @@ def checksig(stream, machine, transaction, index, verification_copy):
     msg = ((hashlib.sha256(hashlib.sha256(serial.stream.decode('hex')).digest()).digest()))# [::-1]).encode('hex_codec')
 
     # verify via ecdsa
-    print "OP_CHECKSIG still buggy"
     vk = ecdsa.VerifyingKey.from_string(pubkey.stream[2:].decode('hex'), curve=ecdsa.SECP256k1)
     try:
         vk.verify_digest(sig.stream.decode('hex'), msg, sigdecode=ecdsa.util.sigdecode_der)

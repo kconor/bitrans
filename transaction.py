@@ -26,7 +26,7 @@ class transaction:
                 prev_tran = transaction(tin.prev_hash, self.server)
                 tout = prev_tran.tx_out[tin.index]
                 combined_script = tin.script + tout.script
-            valid = valid and combined_script.interpret(self, tin.index, animate=animate)
+            valid = valid and combined_script.interpret(self, tin.index, tout.script, animate=animate)
         return valid
 
     def encode(self):

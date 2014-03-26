@@ -33,7 +33,7 @@ class script:
     def stream(self):
         return copy.deepcopy(self.original_bstream)
 
-    def interpret(self, transaction, index, animate=False):
+    def interpret(self, transaction, index, subscript, animate=False):
         verification_copy = copy.deepcopy(self)
         if animate:
             self.machine.draw()
@@ -42,7 +42,7 @@ class script:
             op = ops.code[code]
             print op
             if op.word == 'OP_CHECKSIG':  #checksig is a special case
-                op(self.bstream, self.machine, transaction, index, verification_copy)
+                op(self.bstream, self.machine, transaction, index, verification_copy, subscript)
             else:
                 op(self.bstream, self.machine)
             if animate:
