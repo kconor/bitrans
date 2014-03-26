@@ -39,6 +39,9 @@ python
 #+end_src
   - Grab a transaction
     - the transaction id could be found in https://blockchain.info/
+    - for testing, we use txid = 'fff2525b8931402dd09222c50775608f75787bd2b87e56995a7bdd30f79702c4'. 
+    Note that if your bitcoind hasn't finished reindex, the current rpcserver will just return NoneType Error.
+    Just grab a different txid or wait until reindex finishes.
 #+begin_src py
 >>> import transaction
 >>> t = transaction.transaction('fff2525b8931402dd09222c50775608f75787bd2b87e56995a7bdd30f79702c4',s)
