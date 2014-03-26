@@ -192,6 +192,9 @@ def checksig(stream, machine, transaction, index, verification_copy):
     
     # All OP_CODESEPARATORS are removed from subScript
     #  not implemented yet (james)
+
+    #import pdb
+    #pdb.set_trace()
     
     # The hashtype is removed from the last byte of the sig and stored (as 4 bytes)
     hashtype = bytestream.fromunsigned(bytestream.bytestream(sig.stream[-2:]).unsigned(),4)
@@ -208,18 +211,18 @@ def checksig(stream, machine, transaction, index, verification_copy):
     # The script for the current transaction input in txCopy is set to subScript (lead in by its length as a var-integer encoded!)
     txCopy.tx_in[index-1].script_length = len(verification_copy)
     txCopy.tx_in[index-1].script = verification_copy
-
+    
     # Serialize txCopy and append hashtype
     serial = txCopy.encode() + hashtype
 
     # hash twice with sha256
-    msg = ((hashlib.sha256(hashlib.sha256(serial.stream.decode('hex')).digest()).digest())[::-1]) # .encode('hex_codec')
+    msg = ((hashlib.sha256(hashlib.sha256(serial.stream.decode('hex')).digest()).digest()))# [::-1]).encode('hex_codec')
 
     # verify via ecdsa
-    print "OP_CHECKSIG still not working right, this is going to crash"
+    print "OP_CHECKSIG still buggy"
     vk = ecdsa.VerifyingKey.from_string(pubkey.stream[2:].decode('hex'), curve=ecdsa.SECP256k1)
     try:
-        vk.verify(sig.stream.decode('hex'), msg)
+        vk.verify_digest(sig.stream.decode('hex'), msg, sigdecode=ecdsa.util.sigdecode_der)
         machine.push(bytestream.fromunsigned(1,1))
     except ecdsa.BadSignatureError:
         machine.push(bytestream.fromunsigned(0,1))
