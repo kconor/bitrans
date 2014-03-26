@@ -1,5 +1,6 @@
 import ops
 import bytestream
+import script
 
 def compile(filename):
     """
@@ -7,8 +8,8 @@ def compile(filename):
 
     """
     f = open(filename,'r')
-    raw_string = f.read().replace('\n','')
-    raw_list = raw_string.split(' ')
+    raw_string = f.read().replace('\n',' ')
+    raw_list = [x for x in raw_string.split(' ') if x != '']
     parsed_list = []
     for item in raw_list:
         if len(item) > 1 and item[:2] == 'OP':
@@ -30,5 +31,5 @@ def compile(filename):
             stream += parsed_item.stream()
         else:
             stream += parsed_item
-    return stream
+    return script.script(stream)
     
