@@ -18,15 +18,18 @@ class transaction:
     def verify(self, animate=False):
         valid = True
         for tin in self.tx_in:
-            # coinbase transactions do not refer to a previous output
-            if tin.is_coinbase:
-                combined_script = tin.script
-            # but other transactions do
-            else:
+            # clean machine for each input
+            stack_machine = machine.machine()
+            # always eval tin
+            valid = valid and tin.script.interpret(stack_machine=stack_machine)
+            # coinbase transactions do not refer to a previous output, but other transactions do
+            if not tin.is_coinbase:
                 prev_tran = transaction(tin.prev_hash, self.server)
                 tout = prev_tran.tx_out[tin.index]
-                combined_script = tin.script + tout.script
-            valid = valid and combined_script.interpret(self, tin.index, tout.script, animate=animate)
+                valid = valid and tout.script.interpret(stack_machine=stack_machine,  #operate on dirty machine
+                                                        transaction=self,
+                                                        index=tin.index,
+                                                        animate=animate)  
         return valid
 
     def encode(self):

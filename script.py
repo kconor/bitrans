@@ -21,7 +21,6 @@ class script:
             self.bstream = bytestream.bytestream(s)
         else:
             self.bstream = s
-        self.machine = machine.machine()
         self.original_bstream = copy.deepcopy(self.bstream)
 
     def __add__(self, other):
@@ -33,22 +32,26 @@ class script:
     def stream(self):
         return copy.deepcopy(self.original_bstream)
 
-    def interpret(self, transaction, index, subscript, animate=False):
-        #verification_copy = copy.deepcopy(self)
+    def interpret(self, stack_machine = None, transaction = None, index = None, animate = False):
+        if stack_machine is None:
+            stack_machine = machine.machine()  # create a clean machine if none provided
         if animate:
-            self.machine.draw()
+            stack_machine.draw()
         while not self.bstream.isempty():
             code = self.bstream.read(1).unsigned(endian="big")
             op = ops.code[code]
             print op
             if op.word == 'OP_CHECKSIG':  #checksig is a special case
-                op(self.bstream, self.machine, transaction, index, subscript)
+                if transaction is None or index is None:
+                    print "OP_CHECKSIG called but transaction or index missing; script invalid"
+                    return False
+                op(self.bstream, stack_machine, transaction, index, self)
             else:
-                op(self.bstream, self.machine)
+                op(self.bstream, stack_machine)
             if animate:
-                self.machine.draw()
+                stack_machine.draw()
         self.bstream = self.stream()
-        if self.machine.peek().unsigned() == 0:
+        if stack_machine.peek().unsigned() == 0:
             return False
         return True
             
