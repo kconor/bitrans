@@ -31,7 +31,7 @@ class transaction:
 
     def encode(self):
         stream = bytestream.bytestream('')
-        stream += bytestream.fromunsigned(self.version)
+        stream += bytestream.fromunsigned(self.version,4)
         stream += bytestream.fromvarlen(self.tx_in_count)
         for tx_in in self.tx_in:
             stream += tx_in.encode()

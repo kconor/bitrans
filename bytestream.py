@@ -1,26 +1,17 @@
 import math
 
-def fromunsigned(x, nbytes=None):
-    """
-    This is a gross hack and I'm not sure if it works (james)
-    """
-    
+def fromunsigned(x, nbytes = None):
     if nbytes is None:
         if x == 0:
             nbytes = 1
         else:
             nbytes = int((math.log(x,2) // 8)) + 1
-    nbits = nbytes * 8
-    rev_x = 0
-    for i in xrange(nbits):
-        if (x & (1 << i)):
-            rev_x |= (1 << (nbits - 1 - i))
-    h = hex(rev_x)[2:]
-    if len(h) % 2:
-        h = '0' + h
-    while len(h) < nbytes * 2:
-        h = '00' + h
-    return bytestream(h)
+    hx = hex(x)[2:]
+    if len(hx) % 2:
+        hx = '0' + hx
+    while len(hx) < nbytes * 2:
+        hx = '00' + hx
+    return bytestream((hx.decode('hex')[::-1]).encode('hex'))
 
 def fromvarlen(x):
     if x < 0xfd:
