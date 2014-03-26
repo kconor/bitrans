@@ -232,7 +232,7 @@ def disabled_maker(msg):
 
 # this breaks the usual interface; added a special case to the
 # interpreter
-def checksig(stream, machine, transaction, index, verification_copy, subscript):
+def checksig(stream, machine, transaction, index, subscript):
     """
     For details, please see https://en.bitcoin.it/wiki/OP_CHECKSIG.
     """
@@ -266,7 +266,6 @@ def checksig(stream, machine, transaction, index, verification_copy, subscript):
     
     # A copy is made of the current transaction (hereby referred to txCopy)
     txCopy = copy.deepcopy(transaction)
-    #txCopy = verification_copy
     
     # The scripts for all transaction inputs in txCopy are set to empty scripts (exactly 1 byte 0x00)
     for i in xrange(txCopy.tx_in_count):
@@ -274,8 +273,6 @@ def checksig(stream, machine, transaction, index, verification_copy, subscript):
         txCopy.tx_in[i].script = bytestream.fromunsigned(0,1)
     
     # The script for the current transaction input in txCopy is set to subScript (lead in by its length as a var-integer encoded!)
-    #txCopy.tx_in[index-1].script_length = len(verification_copy)
-    #txCopy.tx_in[index-1].script = verification_copy
     txCopy.tx_in[index-1].script_length = len(subscript)
     txCopy.tx_in[index-1].script = subscript
     
