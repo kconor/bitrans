@@ -1,13 +1,22 @@
 import bytestream
 import script
 import machine
+import sys
 
 class transaction:
     def __init__(self, txid, server):
         self.server = server
         tx = server("getrawtransaction", txid, 1)
         self.txid = txid
-        stream = bytestream.bytestream(tx['hex'])
+        try:
+            stream = bytestream.bytestream(tx['hex'])
+        except TypeError as e:
+            print "Server returned error. Probably can't find the transaction key."
+            print "\tTypeError error: {0}:".format(e)
+            sys.exit(1)
+        except:
+            print "Unexpected error:", sys.exc_info()[0]
+            raise
         self.version = stream.read(4).unsigned()
         self.tx_in_count = stream.readvarlensize()
         self.tx_in  = [txin(stream) for i in xrange(self.tx_in_count)]
