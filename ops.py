@@ -18,7 +18,7 @@ class op:
         self.f(*args)
 
     def __repr__(self):
-        return "<%d: %s>" % (self.opcode, self.word)
+        return "<%3d: %s>" % (self.opcode, self.word)
 
     def __str__(self):
         return self.__repr__()
