@@ -19,8 +19,12 @@ class machine:
         return self.stack[n]
 
     def draw(self):
-        print "stack |%s" % ("*" * len(self.stack),)
-        print "alt   |%s" % ("*" * len(self.alt),)
-        
-        
+    	# If each item on the stack is 12 characters, just print it; otherwise num chars, first four, ldots, last four 
+    	pretty_stack=  [str(x) if len(x)<12 else "(%s)%s...%s"%(len(x),str(x)[:4],str(x)[-4:]) for x in self.stack[::-1]]
+        print "\tstack |%10s [%s]" % ("*" * len(self.stack),', '.join(pretty_stack))
+        pretty_alt=  [str(x) if len(x)<12 else "(%s)%s...%s"%(len(x),str(x)[:4],str(x)[-4:]) for x in self.alt[::-1]]
+        print "\talt   |%10s %s" % ("*" * len(self.alt),', '.join(pretty_alt))  
+
+
+    	    
         
