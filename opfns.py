@@ -3,6 +3,7 @@ import hashlib
 import ecdsa
 
 import bytestream
+import script
 
 class InvalidTransactionException(Exception):
     def __init__(self, msg):
@@ -270,7 +271,7 @@ def checksig(stream, machine, transaction, index, subscript):
     # The scripts for all transaction inputs in txCopy are set to empty scripts (exactly 1 byte 0x00)
     for i in xrange(txCopy.tx_in_count):
         txCopy.tx_in[i].script_length = 0
-        txCopy.tx_in[i].script = bytestream.fromunsigned(0,1)
+        txCopy.tx_in[i].script = script.script(bytestream.fromunsigned(0,1))
     
     # The script for the current transaction input in txCopy is set to subScript (lead in by its length as a var-integer encoded!)
     txCopy.tx_in[index-1].script_length = len(subscript)
