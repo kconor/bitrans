@@ -25,7 +25,7 @@ class machine:
         return self.stack[n]
 
     def draw(self,op=None):
-		""" Writes to stdout a text-version of the stack and ops; also calls method to write dot """
+        """ Writes to stdout a text-version of the stack and ops; also calls method to write dot """
 		
     	# If each item on the stack is 12 characters, just print it; otherwise num chars, first four, ldots, last four 
     	pretty_stack=  [str(x) if len(x)<12 else "(%s)%s...%s"%(len(x),str(x)[:4],str(x)[-4:]) for x in self.stack[::-1]]
