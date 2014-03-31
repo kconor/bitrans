@@ -7,6 +7,8 @@ def fromunsigned(x, nbytes = None):
         else:
             nbytes = int((math.log(x,2) // 8)) + 1
     hx = hex(x)[2:]
+    if type(x) == long:
+        hx = hx[:-1]
     if len(hx) % 2:
         hx = '0' + hx
     while len(hx) < nbytes * 2:

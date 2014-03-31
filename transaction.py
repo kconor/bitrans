@@ -26,7 +26,7 @@ class transaction:
 
     def verify(self, animate=False):
         valid = True
-        for tin in self.tx_in:
+        for idx,tin in enumerate(self.tx_in):
             # clean machine for each input
             stack_machine = machine.machine()
             # always eval tin
@@ -37,7 +37,7 @@ class transaction:
                 tout = prev_tran.tx_out[tin.index]
                 valid = valid and tout.script.interpret(stack_machine=stack_machine,  #operate on dirty machine
                                                         transaction=self,
-                                                        index=tin.index,
+                                                        index=idx,
                                                         animate=animate)  
         return valid
 

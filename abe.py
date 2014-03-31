@@ -9,12 +9,16 @@ import machine
 import script
 import rpc
 
-#failed hashes on rpc
-#\x7b1abe989a92e2e667ad57c7006629080bcefb5d4bc4afa414bcb2565423ab9a
-#\x69b9703cae493965d6ef51b61d2aa78173c693e8b483c185072b50161bfb167f
+
+"""
+    bad hash:
+    this 1688 outputs in abe, ~38k outputs in rpc
+    \\x430596f1a1c84db57fd4e1dc4f7c59bd65cc47822595376b56a34e7459566661
+"""
 
 
 some_hashes = [
+    '\\xfff2525b8931402dd09222c50775608f75787bd2b87e56995a7bdd30f79702c4',
     '\\x6632b2656832f20a411b53ac6f7923404193308b6c09e3dd4e5a0f9fac4c33d6',
     '\\x44eaf56722d9ce7120bccb83a355f038baee72486e964f2b4ac57ac8e32cb1b4',
     '\\x6c01458a6460139d1c104e0a454bfcf5fd77a03a74c8448f8a103920692372fb',
@@ -29,8 +33,9 @@ some_hashes = [
 ]
 
 class Counts(object):
-    def __init__(self):
+    def __init__(self, padding):
         self.counts = {}
+        self.padding = padding
 
     def add(self, key):
         val = self.counts.get(key, None)
@@ -43,11 +48,11 @@ class Counts(object):
         items = sorted(self.counts.items(), key=lambda item: -1 * item[1])
         print("size | count")
         for item in items:
-            print("%s | %s" % (str(item[0]).rjust(4), str(item[1]).rjust(5)))
+            print("%s | %s" % (str(item[0]).rjust(self.padding),
+                               str(item[1]).rjust(self.padding)))
 
 
-def bytea_to_hex(sig):
-    return binascii.hexlify(bytes(sig))
+bytea_to_hex = lambda sig: binascii.hexlify(bytes(sig))
 
 
 class TxIn(object):
@@ -61,7 +66,6 @@ class TxIn(object):
         self.script = script.script(tmp_script)
         self.sequence = int(tuple.txin_sequence)
         self.tx_out = TxOut(tuple)
-        txn.tx_out.append(self.tx_out)
         self.prev_hash = bytea_to_hex(tuple.prev_hash)
 
         if not self.txout_id:#KC
@@ -78,8 +82,16 @@ class TxIn(object):
         stream += bytestream.fromunsigned(self.sequence,4)
         return stream
 
+    def prn(self):
+        print('  prev_hash: %s' % bytestream.bytestream(self.prev_hash).reverse())
+        print('  index: %s' % bytestream.fromunsigned(self.index,4))
+        print('  script_length: %s' % bytestream.fromvarlen(self.script_length))
+        print('  script: %s' % self.script.stream())
+        print('  sequence: %s' % bytestream.fromunsigned(self.sequence,4))
+
     def prev_out(self):
         return self.tx_out
+
 
 class TxOut(object):
     def __init__(self, tuple):
@@ -94,6 +106,11 @@ class TxOut(object):
         stream += bytestream.fromvarlen(self.script_length)
         stream += self.script.stream()
         return stream
+    
+    def prn(self):
+        print('  value: %s' % bytestream.fromunsigned(self.value,8))
+        print('  script_length: %s' % bytestream.fromvarlen(self.script_length))
+        print('  script: %s' % self.script.stream())
 
 
 class Txn(object):
@@ -122,6 +139,13 @@ class Txn(object):
             rs = curs.fetchall()
             for tuple in rs:
                 self.tx_in.append(TxIn(tuple, self))
+            sql = "SELECT txout.tx_id, txout.txout_value, txout.txout_scriptpubkey "\
+                  "FROM txout "\
+                  "WHERE txout.tx_id=%s" % tx_id
+            curs.execute(sql)
+            rs = curs.fetchall()
+            for tuple in rs:
+                self.tx_out.append(TxOut(tuple))
 
     def encode(self):
         stream = bytestream.bytestream('')
@@ -134,7 +158,18 @@ class Txn(object):
             stream += txout.encode()
         stream += bytestream.fromunsigned(self.lock_time, 4)
         return stream
-    
+
+    def prn(self):
+        print('version: %s' % bytestream.fromunsigned(self.version,4))
+        print('tx_in_count: %s' % bytestream.fromvarlen(self.tx_in_count))
+        for txin in self.tx_in:
+            txin.prn()
+        print('tx_out_count: %s' % bytestream.fromvarlen(self.tx_out_count))
+        for txout in self.tx_out:
+            txout.prn()
+        print('lock_time: %s' % bytestream.fromunsigned(self.lock_time, 4))
+
+
     @property
     def tx_out_count(self):
         return len(self.tx_out)
@@ -144,9 +179,9 @@ class Txn(object):
         return len(self.tx_in)
 
 
-    def verify(self):
+    def verify(self, animate=False):
         valid = True
-        for tin in self.tx_in:
+        for idx,tin in enumerate(self.tx_in):
             stack_machine = machine.machine()
             valid = valid and tin.script.interpret(stack_machine=stack_machine)
             if not tin.is_coinbase:
@@ -155,19 +190,25 @@ class Txn(object):
                 tout = tin.prev_out()
                 valid = valid and tout.script.interpret(stack_machine=stack_machine,                                                          
                                                         transaction=self,
-                                                        index=tin.index)
+                                                        index=idx,
+                                                        animate=animate)
         return valid
 
 
 def show_encoding(txn1, txn2):
+    print("\nencoding of rpc vs abe transaction:")
     if not (bytestream.fromunsigned(txn1.version, 4) == 
             bytestream.fromunsigned(txn2.version, 4)):
-        print(bytestream.fromunsigned(txn.version, 4))
+        print("BAD version")
+        print(bytestream.fromunsigned(txn1.version, 4))
+        print(bytestream.fromunsigned(txn2.version, 4))
     else:
         print("version ok")
     if not (bytestream.fromvarlen(txn1.tx_in_count) ==  
             bytestream.fromvarlen(txn2.tx_in_count)):
-        print(bytestream.fromvarlen(txn.tx_in_count))
+        print("BAD tx_in_count")
+        print(bytestream.fromvarlen(txn1.tx_in_count))
+        print(bytestream.fromvarlen(txn2.tx_in_count))
     else:
         print("tx_in_count ok")
 
@@ -187,8 +228,6 @@ def show_encoding(txn1, txn2):
             print("   " + str(bytestream.fromunsigned(tx_in2.index, 4)))
         else:
             print("  tx_in.index ok")
-            print("   " + str(bytestream.fromunsigned(tx_in1.index, 4)))
-            print("   " + str(bytestream.fromunsigned(tx_in2.index, 4)))
         if not (bytestream.fromvarlen(tx_in1.script_length) == 
                 bytestream.fromvarlen(tx_in2.script_length)):
             print("  BAD tx_in.script_length")
@@ -269,30 +308,42 @@ if __name__ == '__main__':
 
     #conn_str = "dbname=postgres"
     conn_str = "dbname=abe2 user=yuewang"
-    failures = Counts()
-    errors = Counts()
+    failures = Counts(12)
+    errors = Counts(20)
+    animate = False
     with psycopg2.connect(conn_str, cursor_factory=NamedTupleCursor) as conn:
-        for i,hash in enumerate(some_hashes):
-            print("\n verify hash %s" % i)
+        for i,hash in enumerate(some_hashes[1:2]):
+            print("\n\n verify hash %s" % i)
+            print(hash)
             abe_txn = Txn(hash, conn)
             rpc_txn = transaction.transaction(hash[2:], rpc_server)
-            #print("\nencoding of abe transaction:")
-            #show_encoding(t,txn)
+            #abe_txn.tx_out[0].prn()
+            #show_encoding(rpc_txn,abe_txn)
             #print_txin(t, txn)
             try:
-                print('abe verified: %s' % abe_txn.verify())
-                failures.add('abe success')
+                verified = abe_txn.verify(animate)
+                print('abe verified: %s\n' % verified)
+                if verified:
+                    failures.add('abe success')
+                else:
+                    failures.add('abe fail')
             except Exception as e1:
                 print(e1)
                 errors.add(str(e1))
-                failures.add('abe fail')
+                failures.add('abe error')
             finally:
                 try:
-                    print('rpc verified: %s' % rpc_txn.verify())
-                    failures.add('rpc success')
+                    verified = rpc_txn.verify(animate)
+                    print('rpc verified: %s\n' % verified)
+                    if verified:
+                        failures.add('rpc success')
+                    else:
+                        failures.add('rpc fail')
                 except Exception as e2:
                     print(e2)
                     errors.add(str(e2))
-                    failures.add('rpc fail')
+                    failures.add('rpc error')
+            """
+            """
     failures.prn()
     errors.prn()

@@ -288,29 +288,30 @@ def checksig(stream, machine, transaction, index, subscript):
     key_header = pubkey.stream[:2]
     key = pubkey.stream[2:]
     if key_header == '04':  # uncompressed 65-byte key
+        print('uncompressed')
         vk = ecdsa.VerifyingKey.from_string(key.decode('hex'), curve=ecdsa.SECP256k1)
     elif key_header == '02' or key_header == '03':  # compressed 33-byte key
         xx = int(key,16)
-        p = ecdsa.SECP256k1.p()
-        a = ecdsa.SECP256k1.a()
-        b = ecdsa.SECP256k1.b()
+        p = ecdsa.SECP256k1.curve.p()
+        a = ecdsa.SECP256k1.curve.a()
+        b = ecdsa.SECP256k1.curve.b()
 
         found = False
         for offset in range(128):
             x = xx + offset
             y2 = pow(x,3,p) + a* pow(x,2,p) + b % p
             y = pow(y2, (p+1)/4, p)
-            if ecdsa.SECP256k1.contains_point(x,y):
+            if ecdsa.SECP256k1.curve.contains_point(x,y):
                 found = True
                 break
-        if not Found:
+        if not found:
             print "bad key"
             machine.push(bytestream.fromunsigned(0,1))
             return
         key += bytestream.fromunsigned(y,32).reverse().stream
         vk = ecdsa.VerifyingKey.from_string(key.decode('hex'), curve=ecdsa.SECP256k1)
     else:  #bad key
-        print "bad key"
+        print "unrecognized key header"
         machine.push(bytestream.fromunsigned(0,1))
         return
     try:
