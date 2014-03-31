@@ -51,8 +51,6 @@ class script:
             if animate:
                 stack_machine.draw(op)
         self.bstream = self.stream()
-        if animate:
-        	stack_machine.draw_close()
         if stack_machine.peek().unsigned() == 0:
             return False
         return True
