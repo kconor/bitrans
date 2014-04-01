@@ -1,3 +1,5 @@
 *.pyc
 *.swp
 graph.dot
+
+server.conf
