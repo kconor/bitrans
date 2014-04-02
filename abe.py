@@ -14,10 +14,13 @@ import rpc
     bad hash:
     this 1688 outputs in abe, ~38k outputs in rpc
     \\x430596f1a1c84db57fd4e1dc4f7c59bd65cc47822595376b56a34e7459566661
+
+    two of three escrow address:
+    3M8XGFBKwkf7miBzpkU3x2DoWwAVrD1mhk
 """
 
 
-some_hashes = [
+hashes = [
     '\\xfff2525b8931402dd09222c50775608f75787bd2b87e56995a7bdd30f79702c4',
     '\\x6632b2656832f20a411b53ac6f7923404193308b6c09e3dd4e5a0f9fac4c33d6',
     '\\x44eaf56722d9ce7120bccb83a355f038baee72486e964f2b4ac57ac8e32cb1b4',
@@ -33,9 +36,10 @@ some_hashes = [
 ]
 
 class Counts(object):
-    def __init__(self, padding):
+    def __init__(self, key_padding, number_padding=5):
         self.counts = {}
-        self.padding = padding
+        self.key_padding = key_padding
+        self.number_padding = number_padding
 
     def add(self, key):
         val = self.counts.get(key, None)
@@ -46,10 +50,11 @@ class Counts(object):
 
     def prn(self):
         items = sorted(self.counts.items(), key=lambda item: -1 * item[1])
-        print("size | count")
-        for item in items:
-            print("%s | %s" % (str(item[0]).rjust(self.padding),
-                               str(item[1]).rjust(self.padding)))
+        if (len(items) > 0):
+            print("size | count")
+            for item in items:
+                print("%s | %s" % (str(item[0]).rjust(self.key_padding),
+                                   str(item[1]).rjust(self.number_padding)))
 
 
 bytea_to_hex = lambda sig: binascii.hexlify(bytes(sig))
@@ -61,9 +66,10 @@ class TxIn(object):
         #print("prev hash: " + self.prev_hash)
         self.txout_id = tuple.txout_id
         self.index = int(tuple.txin_pos)
-        tmp_script = bytea_to_hex(tuple.txin_scriptsig)
-        self.script_length = len(tmp_script) / 2
-        self.script = script.script(tmp_script)
+        self.script_bytea = tuple.txin_scriptsig
+        self.script_hex = bytea_to_hex(self.script_bytea)
+        self.script_length = len(self.script_hex) / 2
+        self.script = script.script(self.script_hex)
         self.sequence = int(tuple.txin_sequence)
         self.tx_out = TxOut(tuple)
         self.prev_hash = bytea_to_hex(tuple.prev_hash)
@@ -96,7 +102,8 @@ class TxIn(object):
 class TxOut(object):
     def __init__(self, tuple):
         self.value = int(tuple.txout_value)
-        tmp_script = bytea_to_hex(tuple.txout_scriptpubkey)
+        self.script_bytea = tuple.txout_scriptpubkey
+        tmp_script = bytea_to_hex(self.script_bytea)
         self.script_length = len(tmp_script) / 2
         self.script = script.script(tmp_script)
 
@@ -127,7 +134,7 @@ class Txn(object):
             tx_id = rs[0].tx_id
             self.version = int(rs[0].tx_version)
             self.lock_time = int(rs[0].tx_locktime)
-            #load tx_in from tx_id
+            #load tx_in from tx_id and each prev output
             sql = "SELECT txin.tx_id, txin.txin_pos, txin.txin_scriptsig, "\
                   "txin.txin_sequence, txin.txout_id, txout.txout_value, "\
                   "txout.txout_scriptpubkey, tx.tx_hash as prev_hash "\
@@ -139,6 +146,7 @@ class Txn(object):
             rs = curs.fetchall()
             for tuple in rs:
                 self.tx_in.append(TxIn(tuple, self))
+            #load the outputs of the tansaction
             sql = "SELECT txout.tx_id, txout.txout_value, txout.txout_scriptpubkey "\
                   "FROM txout "\
                   "WHERE txout.tx_id=%s" % tx_id
@@ -303,47 +311,58 @@ def print_txin(txn1, txn2):
         print("  sequence: %s" % y.sequence)
 
 
+def fetch_hashes(N, conn):
+    with conn.cursor() as curs:
+        sql = "SELECT tx_hash FROM tx ORDER BY tx_id DESC LIMIT %s" % N
+        curs.execute(sql)
+        rs = curs.fetchall()
+        hashes = map(lambda tup: '\\x' + bytea_to_hex(tup[0]), rs)
+        return hashes
+              
+
+def verify(abe_txn, counts, rpc_txn=None):
+    try:
+        verified = abe_txn.verify(animate)
+        print('abe verified: %s\n' % verified)
+        if verified:
+            counts.add('abe success')
+        else:
+            counts.add('abe fail')
+    except Exception as e1:
+        print(e1)
+        counts.add(str(e1))
+        counts.add('abe error')
+    finally:
+        if (rpc_txn):
+            try:
+                verified = rpc_txn.verify(animate)
+                print('rpc verified: %s\n' % verified)
+                if verified:
+                    counts.add('rpc success')
+                else:
+                    counts.add('rpc fail')
+            except Exception as e2:
+                print(e2)
+                counts.add(str(e2))
+                counts.add('rpc error')
+
+
 if __name__ == '__main__':
     rpc_server = rpc.jsonrpc("bitcoinrpc", "Ck9SwPoZ76gaiLex88r7aKspUrFUFEDffai9mzRjDi7W")
 
     #conn_str = "dbname=postgres"
     conn_str = "dbname=abe2 user=yuewang"
-    failures = Counts(12)
-    errors = Counts(20)
+    verify_counts = Counts(20)
     animate = False
     with psycopg2.connect(conn_str, cursor_factory=NamedTupleCursor) as conn:
-        for i,hash in enumerate(some_hashes[1:2]):
-            print("\n\n verify hash %s" % i)
-            print(hash)
+        #hashes = fetch_hashes(1000000, conn)
+        for i,hash in enumerate(hashes):
+            #print("\n\n verify hash %s" % i)
+            #print(hash)
             abe_txn = Txn(hash, conn)
-            rpc_txn = transaction.transaction(hash[2:], rpc_server)
+            #rpc_txn = transaction.transaction(hash[2:], rpc_server)
+            #verify(abe_txn, verify_counts, rpc_txn)
             #abe_txn.tx_out[0].prn()
             #show_encoding(rpc_txn,abe_txn)
             #print_txin(t, txn)
-            try:
-                verified = abe_txn.verify(animate)
-                print('abe verified: %s\n' % verified)
-                if verified:
-                    failures.add('abe success')
-                else:
-                    failures.add('abe fail')
-            except Exception as e1:
-                print(e1)
-                errors.add(str(e1))
-                failures.add('abe error')
-            finally:
-                try:
-                    verified = rpc_txn.verify(animate)
-                    print('rpc verified: %s\n' % verified)
-                    if verified:
-                        failures.add('rpc success')
-                    else:
-                        failures.add('rpc fail')
-                except Exception as e2:
-                    print(e2)
-                    errors.add(str(e2))
-                    failures.add('rpc error')
-            """
-            """
-    failures.prn()
-    errors.prn()
+    verify_counts.prn()
