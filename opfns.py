@@ -1,6 +1,8 @@
 import copy
 import hashlib
 import ecdsa
+import math
+import btct
 
 import bytestream
 import script
@@ -284,11 +286,11 @@ def checksig(stream, machine, transaction, index, subscript):
     msg = ((hashlib.sha256(hashlib.sha256(serial.stream.decode('hex')).digest()).digest()))# [::-1]).encode('hex_codec')
 
     # verify via ecdsa
-    vk = ecdsa.VerifyingKey.from_string(pubkey.stream[2:].decode('hex'), curve=ecdsa.SECP256k1)
+    key = btct.decompress(pubkey.stream)
+    vk = ecdsa.VerifyingKey.from_string(key[2:].decode('hex'), curve=ecdsa.SECP256k1)
     try:
         vk.verify_digest(sig.stream.decode('hex'), msg, sigdecode=ecdsa.util.sigdecode_der)
         machine.push(bytestream.fromunsigned(1,1))
     except ecdsa.BadSignatureError:
         machine.push(bytestream.fromunsigned(0,1))
-    
     
