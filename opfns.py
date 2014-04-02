@@ -2,6 +2,7 @@ import copy
 import hashlib
 import ecdsa
 import math
+import btct
 
 import bytestream
 import script
@@ -285,38 +286,11 @@ def checksig(stream, machine, transaction, index, subscript):
     msg = ((hashlib.sha256(hashlib.sha256(serial.stream.decode('hex')).digest()).digest()))# [::-1]).encode('hex_codec')
 
     # verify via ecdsa
-    key_header = pubkey.stream[:2]
-    key = pubkey.stream[2:]
-    if key_header == '04':  # uncompressed 65-byte key
-        vk = ecdsa.VerifyingKey.from_string(key.decode('hex'), curve=ecdsa.SECP256k1)
-    elif key_header == '02' or key_header == '03':  # compressed 33-byte key
-        xx = int(key,16)
-        p = ecdsa.SECP256k1.p()
-        a = ecdsa.SECP256k1.a()
-        b = ecdsa.SECP256k1.b()
-
-        found = False
-        for offset in range(128):
-            x = xx + offset
-            y2 = pow(x,3,p) + a* pow(x,2,p) + b % p
-            y = pow(y2, (p+1)/4, p)
-            if ecdsa.SECP256k1.contains_point(x,y):
-                found = True
-                break
-        if not Found:
-            print "bad key"
-            machine.push(bytestream.fromunsigned(0,1))
-            return
-        key += bytestream.fromunsigned(y,32).reverse().stream
-        vk = ecdsa.VerifyingKey.from_string(key.decode('hex'), curve=ecdsa.SECP256k1)
-    else:  #bad key
-        print "bad key"
-        machine.push(bytestream.fromunsigned(0,1))
-        return
+    key = btct.decompress(pubkey.stream)
+    vk = ecdsa.VerifyingKey.from_string(key[2:].decode('hex'), curve=ecdsa.SECP256k1)
     try:
         vk.verify_digest(sig.stream.decode('hex'), msg, sigdecode=ecdsa.util.sigdecode_der)
         machine.push(bytestream.fromunsigned(1,1))
     except ecdsa.BadSignatureError:
         machine.push(bytestream.fromunsigned(0,1))
-    
     
