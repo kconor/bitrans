@@ -38,6 +38,7 @@ class TestTx(unittest.TestCase):
                 except:
                     print ("\tException")
                     test= False
+                print("Found a result of %s." % test)
                 self.assertEqual(test,result)
 
 
