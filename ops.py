@@ -71,8 +71,8 @@ code[99] = op("OP_IF", 99) #wrong args
 code[100] = op("OP_NOTIF", 100) #wrong args
 code[103] = op("OP_ELSE", 103) #wrong args
 code[104] = op("OP_ENDIF", 104)
-code[105] = op("OP_VERIFY", 105)
-code[106] = op("OP_RETURN", 106)
+code[105] = op("OP_VERIFY", 105, opfns.verifier_maker(lambda stream, machine: None, "OP_VERIFY failed"))
+code[106] = op("OP_RETURN", 106, opfns.ret)
 code[107] = op("OP_TOALTSTACK", 107, opfns.toalt)
 code[108] = op("OP_FROMALTSTACK", 108, opfns.fromalt)
 code[115] = op("OP_IFDUP", 115, opfns.ifdup)
@@ -97,12 +97,12 @@ code[135] = op("OP_EQUAL", 135, opfns.equal)
 code[136] = op("OP_EQUALVERIFY",
                136,
                opfns.verifier_maker(opfns.equal, "OP_EQUALVERIFY failed"))
-code[139] = op("OP_1ADD", 139, opfns.op_add1)
+code[139] = op("OP_1ADD", 139)
 code[140] = op("OP_1SUB", 140)
-code[143] = op("OP_NEGATE", 143)
+code[143] = op("OP_NEGATE", 143) 
 code[144] = op("OP_ABS", 144)
-code[144] = op("OP_NOT", 145)
-code[146] = op("OP_0NOTEQUAL", 146)
+code[144] = op("OP_NOT", 145, opfns.opnot)
+code[146] = op("OP_0NOTEQUAL", 146, opfns.op0ne)
 code[147] = op("OP_ADD", 147)
 code[148] = op("OP_SUB", 148)
 code[154] = op("OP_BOOLAND", 154)
@@ -117,7 +117,7 @@ code[162] = op("OP_GREATERTHANOREQUAL", 162)
 code[163] = op("OP_MIN", 163)
 code[164] = op("OP_MAX", 164)
 code[165] = op("OP_WITHIN", 165)
-code[166] = op("OP_RIPEMD160", 166) #wrong args
+code[166] = op("OP_RIPEMD160", 166) 
 code[167] = op("OP_SHA1", 167)
 code[168] = op("OP_SHA256", 168)
 code[169] = op("OP_HASH160",
@@ -127,8 +127,8 @@ code[170] = op("OP_HASH256", 170)
 code[171] = op("OP_CODESEPARATOR", 171)
 code[172] = op("OP_CHECKSIG", 172, opfns.checksig)
 code[173] = op("OP_CHECKSIGVERIFY", 173)
-code[174] = op("OP_CHECKMULTISIG", 174) #fix args
-code[175] = op("OP_CHECKMULTISIGVERIFY", 175) #fix args
+code[174] = op("OP_CHECKMULTISIG", 174) 
+code[175] = op("OP_CHECKMULTISIGVERIFY", 175) 
 
 # index ops by word too
 word = {}

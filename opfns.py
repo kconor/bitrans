@@ -218,6 +218,9 @@ def equal(stream, machine):
     else:
         machine.push(bytestream.fromunsigned(0))
 
+def ret(stream, machine):
+    raise InvalidTransactionException("OP_RETURN evaluated")
+
 def verifier_maker(f, msg):
     def verifier(stream, machine):
         f(stream, machine)
@@ -232,6 +235,36 @@ def disabled_maker(msg):
     def disabled(stream, machine):
         raise InvalidTransactionException(msg)
     return disabled
+
+def unary_arith_maker(f):
+    """
+    This is wrong.  Need to transform bytestream -> signed, then operate, then transform signed -> bytestream [which isn't implemented yet].
+
+    Anyone want to take a stab at it?
+    """
+    def unary_arith(stream, machine):
+        x = machine.pop()
+        machine.push(f(x))
+    return unary_arith
+
+def opnot(stream, machine):
+    x = machine.pop()
+    if x.signed() == 0:
+        machine.push(bytestream.fromunsigned(1,len(x)))
+    elif x.signed() == 1:
+        machine.push(bytestream.fromunsigned(0,len(x)))
+    else:
+        machine.push(bytestream.fromunsigned(0,1))
+
+def op0ne(stream, machine):
+    x = machine.pop()
+    if x.signed() == 0:
+        machine.push(bytestream.fromunsigned(0,len(x)))
+    else:
+        machine.push(bytestream.fromunsigned(1,1))
+
+                
+                    
 
 # this breaks the usual interface; added a special case to the
 # interpreter
