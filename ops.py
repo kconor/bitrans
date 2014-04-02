@@ -67,9 +67,9 @@ for i in xrange(1,17):
                     opfns.numpusher_maker(i))
 
 code[97] = op("OP_NOP", 97, opfns.nop)
-code[99] = op("OP_IF", 99) #wrong args
-code[100] = op("OP_NOTIF", 100) #wrong args
-code[103] = op("OP_ELSE", 103) #wrong args
+code[99] = op("OP_IF", 99) 
+code[100] = op("OP_NOTIF", 100) 
+code[103] = op("OP_ELSE", 103) 
 code[104] = op("OP_ENDIF", 104)
 code[105] = op("OP_VERIFY", 105, opfns.verifier_maker(lambda stream, machine: None, "OP_VERIFY failed"))
 code[106] = op("OP_RETURN", 106, opfns.ret)
