@@ -1,7 +1,19 @@
+str2ifstate = {"eval-consequent": 0,
+               "ignore-consequent": 1,
+               "eval-alternative": 2,
+               "ignore-alternative": 3}
+ifstate2str = ["eval-consequent", "ignore-consequent", "eval-alternative", "ignore-alternative"]
+
 class machine:
     def __init__(self):
+        # init stacks
         self.stack = []
         self.alt = []
+
+        # init state
+        self.ifstate = []
+        self.locked = False  # if locked, mutation is forbidden
+        
         # dot requires each node have a unique number
         self.draw_cnt=0
         # open a file for writing a graphviz/dot file; write the header
@@ -14,21 +26,53 @@ class machine:
         
         self.fd.write("}")
         self.fd.close
+
+    def lock(self):
+        self.locked = True
+
+    def unlock(self):
+        self.locked = False
         
     def push(self, bstream):
-        self.stack.append(bstream)
+        if not self.locked:
+            self.stack.append(bstream)
 
     def pushalt(self, bstream):
-        self.alt.append(bstream)
+        if not self.locked:
+            self.alt.append(bstream)
+
+    def pushifstate(self, string):
+        if not self.locked:
+            self.ifstate.append(str2ifstate[string])
+
+    def changeifstate(self, string):
+        if not self.locked:
+            self.ifstate[-1] = str2ifstate[string]
 
     def pop(self, n=-1):
-        return self.stack.pop(n)
+        if not self.locked:
+            return self.stack.pop(n)
 
     def popalt(self):
-        return self.alt.pop()
+        if not self.locked:
+            return self.alt.pop()
 
+    def popifstate(self):
+        if not self.locked:
+            return ifstate2str[self.ifstate.pop()]
+        
     def peek(self, n=-1):
         return self.stack[n]
+
+    def inif(self):
+        """
+        Are we currently within an if-else block?
+
+        """
+        return len(self.ifstate) != 0
+
+    def inifstate(self, string):
+        return ifstate2str[self.ifstate[-1]] == string
 
     def draw(self,op=None):
         """ 

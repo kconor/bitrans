@@ -6,15 +6,6 @@ import ops
 import bytestream
 import machine
 
-url_regex  = re.compile(
-    r'^(?:http|ftp)s?://' # http:// or https://
-    r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|' # domain...
-    r'localhost|' # localhost...
-    r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}|' # ...or ipv4
-    r'\[?[A-F0-9]*:[A-F0-9:]+\]?)' # ...or ipv6
-    r'(?::\d+)?' # optional port
-    r'(?:/?|[/?]\S+)$', re.IGNORECASE)
-
 class script:
     def __init__(self, s):
         if isinstance(s, str):
@@ -41,15 +32,51 @@ class script:
             code = self.bstream.read(1).unsigned(endian="big")
             op = ops.code[code]
             print op
-            if op.word == 'OP_CHECKSIG':  #checksig is a special case
+            
+            #special cases
+            if op.word == "OP_IF" or op.word == "OP_NOTIF":
+                top_value = stack_machine.pop()
+                if op.word == "OP_IF":
+                    consequence = top_value.signed() != 0
+                elif op.word == "OP_NOTIF":
+                    consequence = top_value.signed() == 0
+                if consequence:
+                    stack_machine.pushifstate("eval-consequent")
+                    continue
+                else:
+                    stack_machine.pushifstate("ignore-consequent")
+                    stack_machine.lock()
+                    continue
+            elif op.word == "OP_ELSE":
+                if not stack_machine.inif():
+                    print "OP_ELSE called outside of if statement"
+                    return False
+                if stack_machine.inifstate("eval-consequent"):
+                    stack_machine.changeifstate("ignore-alternative")
+                    stack_machine.lock()
+                elif stack_machine.inifstate("ignore-consequent"):
+                    stack_machine.changeifstate("eval-alternative")
+                    stack_machine.unlock()
+            elif op.word == "OP_ENDIF":
+                if not stack_machine.inif():
+                    print "OP_ENDIF called outside of if statement"
+                    return False
+                if stack_machine.inifstate("ignore-alternative"):
+                    stack_machine.unlock()
+                stack_machine.popifstate()
+            elif op.word == 'OP_CHECKSIG':  #checksig is a special case
                 if transaction is None or index is None:
                     print "OP_CHECKSIG called but transaction or index missing; script invalid"
                     return False
                 op(self.bstream, stack_machine, transaction, index, self)
+            # usual case
             else:
                 op(self.bstream, stack_machine)
+                
             if animate:
                 stack_machine.draw(op)
+        
+        # reset the stream
         self.bstream = self.stream()
         if stack_machine.peek().unsigned() == 0:
             return False

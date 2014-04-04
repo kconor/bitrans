@@ -1,0 +1,6 @@
+OP_PUSH1 10
+OP_IF 
+OP_PUSH4 1ceb00da
+OP_ELSE
+OP_PUSH4 deadbeef
+OP_ENDIF

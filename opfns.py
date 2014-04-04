@@ -20,13 +20,6 @@ class InvalidTransactionException(Exception):
 def nop(stream, machine):
     pass
 
-
-def op_if(stream, machine):
-    data = machine.stack.pop()
-    assert type(data) == int
-    if data != 0:  # execute statement
-        pass
-
 # op function implementations
 def empty_array(stream, machine):
     empty_array = bytestream("")
