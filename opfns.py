@@ -230,15 +230,25 @@ def disabled_maker(msg):
     return disabled
 
 def unary_arith_maker(f):
-    """
-    This is wrong.  Need to transform bytestream -> signed, then operate, then transform signed -> bytestream [which isn't implemented yet].
-
-    Anyone want to take a stab at it?
-    """
     def unary_arith(stream, machine):
-        x = machine.pop()
-        machine.push(f(x))
+        s = machine.pop()
+        l = len(s)
+        x = s.signed(endian="little")
+        machine.push(bytestream.fromsigned(f(x), l))
     return unary_arith
+
+def binary_arith_maker(f):
+    def binary_arith(stream, machine):
+        s1 = machine.pop()
+        l1 = len(s1)
+        x1 = s1.signed(endian="little")
+
+        s2 = machine.pop()
+        l2 = len(s2)
+        x2 = s2.signed(endian="little")
+
+        machine.push(bytestream.fromsigned(f(x1,x2), max(l1,l2)))
+    return binary_arith
 
 def opnot(stream, machine):
     x = machine.pop()

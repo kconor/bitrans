@@ -4,6 +4,8 @@ described in https://en.bitcoin.it/wiki/Script.
 
 """
 
+import math
+
 import opfns
 import bytestream
 
@@ -100,25 +102,25 @@ code[135] = op("OP_EQUAL", 135, opfns.equal)
 code[136] = op("OP_EQUALVERIFY",
                136,
                opfns.verifier_maker(opfns.equal, "OP_EQUALVERIFY failed"))
-code[139] = op("OP_1ADD", 139)
-code[140] = op("OP_1SUB", 140)
-code[143] = op("OP_NEGATE", 143) 
-code[144] = op("OP_ABS", 144)
+code[139] = op("OP_1ADD", 139, opfns.unary_arith_maker(lambda x: x + 1))
+code[140] = op("OP_1SUB", 140, opfns.unary_arith_maker(lambda x: x - 1))
+code[143] = op("OP_NEGATE", 143, opfns.unary_arith_maker(lambda x: -x))
+code[144] = op("OP_ABS", 144, opfns.unary_arith_maker(lambda x: math.abs(x)))
 code[144] = op("OP_NOT", 145, opfns.opnot)
 code[146] = op("OP_0NOTEQUAL", 146, opfns.op0ne)
-code[147] = op("OP_ADD", 147)
-code[148] = op("OP_SUB", 148)
-code[154] = op("OP_BOOLAND", 154)
-code[155] = op("OP_BOOLOR", 155)
-code[156] = op("OP_NUMEQUAL", 156)
+code[147] = op("OP_ADD", 147, opfns.binary_arith_maker(lambda x, y: x + y))
+code[148] = op("OP_SUB", 148, opfns.binary_arith_maker(lambda x, y: x - y))
+code[154] = op("OP_BOOLAND", 154, opfns.binary_arith_maker(lambda x, y: int( (x != 0) and (y != 0) ) ))
+code[155] = op("OP_BOOLOR", 155, opfns.binary_arith_maker(lambda x, y: int( (x != 0) or (y != 0) ) ))
+code[156] = op("OP_NUMEQUAL", 156, opfns.binary_arith_maker(lambda x, y: int(x == y)))
 code[157] = op("OP_NUMEQUALVERIFY", 157)
 code[158] = op("OP_NUMNOTEQUAL", 158)
-code[159] = op("OP_LESSTHAN", 159)
-code[160] = op("OP_GREATHERTHAN", 160)
-code[161] = op("OP_LESSTHANOREQUAL", 161)
-code[162] = op("OP_GREATERTHANOREQUAL", 162)
-code[163] = op("OP_MIN", 163)
-code[164] = op("OP_MAX", 164)
+code[159] = op("OP_LESSTHAN", 159, opfns.binary_arith_maker(lambda x, y: int(x < y)))
+code[160] = op("OP_GREATHERTHAN", 160, opfns.binary_arith_maker(lambda x, y: int(x > y)))
+code[161] = op("OP_LESSTHANOREQUAL", 161, opfns.binary_arith_maker(lambda x, y: int(x <= y)))
+code[162] = op("OP_GREATERTHANOREQUAL", 162, opfns.binary_arith_maker(lambda x, y: int(x >= y)))
+code[163] = op("OP_MIN", 163, opfns.binary_arith_maker(lambda x,y: min(x,y)))
+code[164] = op("OP_MAX", 164, opfns.binary_arith_maker(lambda x,y: max(x,y)))
 code[165] = op("OP_WITHIN", 165)
 code[166] = op("OP_RIPEMD160", 166) 
 code[167] = op("OP_SHA1", 167)

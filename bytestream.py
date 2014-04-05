@@ -1,17 +1,34 @@
 import math
+import struct
+
+def compute_nbytes(x, signed=False):
+    if x == 0:
+        nbytes = 1
+    if x < 0:
+        nbytes = int(( (math.log(-x,2) + 1) // 8)) + 1
+    else:
+        if signed:
+            nbytes = int(( (math.log(x+1,2) + 1) // 8)) + 1
+        else:
+            nbytes = int((math.log(x,2) // 8)) + 1
+    return nbytes
 
 def fromunsigned(x, nbytes = None):
     if nbytes is None:
-        if x == 0:
-            nbytes = 1
-        else:
-            nbytes = int((math.log(x,2) // 8)) + 1
+        nbytes = compute_nbytes(x,signed = False)
     hx = hex(x)[2:]
     if len(hx) % 2:
         hx = '0' + hx
     while len(hx) < nbytes * 2:
         hx = '00' + hx
     return bytestream((hx.decode('hex')[::-1]).encode('hex'))
+
+def fromsigned(x, nbytes = None):
+    if nbytes is None:
+        nbytes = compute_nbytes(x,signed = True)
+    if x < 0:
+        return fromunsigned(2**(nbytes*8) + x, nbytes)
+    return fromunsigned(x, nbytes)
 
 def fromvarlen(x):
     if x < 0xfd:
