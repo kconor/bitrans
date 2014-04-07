@@ -92,7 +92,12 @@ t.verify()
   + Throw a whole bunch of garbage at the vm and see if anything
     causes it to lock up or overflow or something.
 
-
+* Running tests
+  Install and run nose:
+#+begin_src sh
+pip install nose
+nosetests
+#+end_src     
 
 
   
